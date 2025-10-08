@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:audiobinge/provider/connectivityProvider.dart';
 import 'package:flutter/material.dart';
-import 'youtubeAudioStream.dart';
-import 'main.dart';
+import '../services/youtubeAudioStream.dart';
+import '../main.dart';
 import 'package:provider/provider.dart';
-import 'connectivityProvider.dart';
+
+import '../services/player.dart';
 
 class BottomPlayer extends StatefulWidget {
   const BottomPlayer({super.key});

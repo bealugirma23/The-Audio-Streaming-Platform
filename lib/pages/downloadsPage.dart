@@ -1,16 +1,14 @@
-import 'package:audiobinge/favoriteUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:youtube_scrape_api/models/video.dart';
-import 'videoComponent.dart';
+import '../components/videoComponent.dart';
 import 'package:shimmer/shimmer.dart';
-import 'main.dart';
+import '../main.dart';
 import 'package:provider/provider.dart';
-import 'downloadUtils.dart';
-import 'MyVideo.dart';
-import 'colors.dart';
-import 'connectivityProvider.dart';
+import '../services/player.dart';
+import '../utils/downloadUtils.dart';
+import '../models/MyVideo.dart';
+import '../theme/colors.dart';
 
 class DownloadScreen extends StatefulWidget {
   const DownloadScreen({super.key});
@@ -19,7 +17,8 @@ class DownloadScreen extends StatefulWidget {
   _DownloadScreenState createState() => _DownloadScreenState();
 }
 
-class _DownloadScreenState extends State<DownloadScreen> with SingleTickerProviderStateMixin {
+class _DownloadScreenState extends State<DownloadScreen>
+    with SingleTickerProviderStateMixin {
   List<MyVideo> _videos = [];
   bool _isLoading = false;
   late AnimationController _animationController;
@@ -74,46 +73,44 @@ class _DownloadScreenState extends State<DownloadScreen> with SingleTickerProvid
           children: [
             Container(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
+              // decoration: BoxDecoration(
+              //   color: Colors.grey[900],
+              //   borderRadius: BorderRadius.only(
+              //     bottomLeft: Radius.circular(15),
+              //     bottomRight: Radius.circular(15),
+              //   ),
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Colors.black26,
+              //       blurRadius: 6,
+              //       offset: Offset(0, 3),
+              //     ),
+              //   ],
+              // ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.download_rounded,
+                  //       color: AppColors.primaryColor,
+                  //       size: 28,
+                  //     ),
+                  //     SizedBox(width: 12),
+                  //     Text(
+                  //       'Downloads',
+                  //       style: GoogleFonts.roboto(
+                  //         fontSize: 24,
+                  //         fontWeight: FontWeight.bold,
+                  //         color: Colors.white,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   Row(
                     children: [
-                      Icon(
-                        Icons.download_rounded,
-                        color: AppColors.primaryColor,
-                        size: 28,
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Downloads',
-                        style: GoogleFonts.roboto(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-
-                      if (_videos.isNotEmpty)
-                        SizedBox(width: 8),
+                      if (_videos.isNotEmpty) SizedBox(width: 8),
                       if (_videos.isNotEmpty)
                         ElevatedButton.icon(
                           onPressed: () => playing.setQueue(_videos),
@@ -123,7 +120,8 @@ class _DownloadScreenState extends State<DownloadScreen> with SingleTickerProvid
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
                           icon: Icon(Icons.play_arrow, size: 16),
                           label: Text(
@@ -211,8 +209,8 @@ class _DownloadScreenState extends State<DownloadScreen> with SingleTickerProvid
             ElevatedButton(
               onPressed: () {
                 // Navigate to YouTube page to find content to download
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> YouTubeTwitchTabs()));
-
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => YouTubeTwitchTabs()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
@@ -239,7 +237,10 @@ class _DownloadScreenState extends State<DownloadScreen> with SingleTickerProvid
       itemCount: _videos.length,
       itemBuilder: (context, index) {
         final video = _videos[index];
-        return VideoComponent(video: video);
+        return VideoComponent(
+          video: video,
+          from: FromWhere.SEARCH,
+        );
       },
     );
   }

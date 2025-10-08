@@ -1,7 +1,8 @@
-import 'package:audiobinge/channelVideosPage.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' hide Video;
 import 'package:youtube_scrape_api/models/video.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart' as scraper;
+
+import '../pages/channelVideosPage.dart';
 
 Future<String> fetchYoutubeStreamUrl(String id) async {
   final yt = YoutubeExplode();

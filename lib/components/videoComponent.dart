@@ -1,55 +1,24 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:audiobinge/channelVideosPage.dart';
+import 'package:audiobinge/pages/channelVideosPage.dart';
+import 'package:audiobinge/services/donwloadService.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_scrape_api/models/video.dart';
 import 'package:provider/provider.dart';
-import 'downloadUtils.dart';
-import 'main.dart'; // Replace with the actual path
-import 'youtubeAudioStream.dart';
-import 'favoriteUtils.dart';
-import 'connectivityProvider.dart';
-import 'MyVideo.dart';
-import 'colors.dart';
+import '../services/player.dart';
+import '../utils/downloadUtils.dart';
+import '../main.dart'; // Replace with the actual path
+import '../utils/favoriteUtils.dart';
+import '../provider/connectivityProvider.dart';
+import '../models/MyVideo.dart';
+import '../theme/colors.dart';
 
-class DownloadService {
-  final Map<String, double> _downloadProgress = {};
-  final Map<String, bool> _downloadingState = {};
-  final StreamController<Map<String, double>> _progressStreamController =
-      StreamController<Map<String, double>>.broadcast();
-
-  Stream<Map<String, double>> get progressStream =>
-      _progressStreamController.stream;
-
-  double getProgress(String videoId) {
-    return _downloadProgress[videoId] ?? 0.0;
-  }
-
-  bool getDownloadingState(String videoId) {
-    return _downloadingState[videoId] ?? false;
-  }
-
-  Future<void> startDownload(BuildContext context, MyVideo video) async {
-    _downloadingState[video.videoId!] = true;
-    downloadAndSaveMetaData(context, video, (progress) {
-      _downloadProgress[video.videoId!] = progress;
-      _progressStreamController.add(_downloadProgress);
-      if (progress >= 1.0) {
-        _downloadingState[video.videoId!] = false;
-      }
-    });
-  }
-
-  void dispose() {
-    _progressStreamController.close();
-  }
-}
+enum FromWhere { HOME, SEARCH }
 
 class VideoComponent extends StatefulWidget {
   final MyVideo video;
+  final FromWhere from;
 
-  VideoComponent({required this.video});
+  const VideoComponent({super.key, required this.video, required this.from});
 
   @override
   _VideoComponentState createState() => _VideoComponentState();
@@ -92,8 +61,8 @@ class _VideoComponentState extends State<VideoComponent> {
             snapshot.data!.isEmpty) {
           return Text('No data available');
         } else {
-          bool _isLiked = (snapshot.data![0] ?? false);
-          bool _isDownloaded = (snapshot.data![1] ?? false);
+          bool isLiked = (snapshot.data![0] ?? false);
+          bool isDownloaded = (snapshot.data![1] ?? false);
 
           return StreamBuilder<Map<String, double>>(
             stream: downloadService.progressStream,
@@ -114,6 +83,9 @@ class _VideoComponentState extends State<VideoComponent> {
                 },
                 child: Container(
                   height: 100,
+                  width: widget.from == FromWhere.HOME
+                      ? 180
+                      : double.infinity, // ✅ Add this
                   decoration: BoxDecoration(
                     color: Colors.black87,
                     borderRadius: BorderRadius.circular(15),
@@ -145,7 +117,7 @@ class _VideoComponentState extends State<VideoComponent> {
                                 : (isOnline)
                                     ? Image.network(
                                         widget.video.thumbnails![0].url!,
-                                        height: 100,
+                                        height: 80,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                       )
@@ -249,7 +221,7 @@ class _VideoComponentState extends State<VideoComponent> {
                                     value: 'add_to_queue',
                                     child: Text('Add to Queue'),
                                   ),
-                                  _isLiked
+                                  isLiked
                                       ? PopupMenuItem<String>(
                                           value: 'remove_from_favorites',
                                           child: Text('Remove from favorites'),
@@ -258,7 +230,7 @@ class _VideoComponentState extends State<VideoComponent> {
                                           value: 'add_to_favorites',
                                           child: Text('Add to favorites'),
                                         ),
-                                  _isDownloaded
+                                  isDownloaded
                                       ? PopupMenuItem<String>(
                                           value: 'remove_from_downloads',
                                           child: Text('Remove from downloads'),
@@ -313,7 +285,7 @@ class _VideoComponentState extends State<VideoComponent> {
                               AppColors.primaryColor),
                         ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -322,6 +294,8 @@ class _VideoComponentState extends State<VideoComponent> {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                               style: TextStyle(
+                                fontSize: 14,
+                                height: 1.2,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -345,11 +319,15 @@ class _VideoComponentState extends State<VideoComponent> {
                                 widget.video.channelName ?? 'Unknown channel',
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: TextStyle(color: Colors.grey),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],
                         ),
+                        
                       ),
                     ],
                   ),

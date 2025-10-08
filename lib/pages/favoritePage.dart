@@ -1,16 +1,15 @@
-import 'package:audiobinge/favoriteUtils.dart';
-import 'package:audiobinge/youtubePage.dart';
+import 'package:audiobinge/utils/favoriteUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:youtube_scrape_api/models/video.dart';
-import 'videoComponent.dart';
+import '../components/videoComponent.dart';
 import 'package:shimmer/shimmer.dart';
-import 'main.dart';
+import '../main.dart';
 import 'package:provider/provider.dart';
-import 'connectivityProvider.dart';
-import 'MyVideo.dart';
-import 'colors.dart';
+import '../provider/connectivityProvider.dart';
+import '../models/MyVideo.dart';
+import '../services/player.dart';
+import '../theme/colors.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -19,7 +18,8 @@ class FavoriteScreen extends StatefulWidget {
   _FavoriteScreenState createState() => _FavoriteScreenState();
 }
 
-class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProviderStateMixin {
+class _FavoriteScreenState extends State<FavoriteScreen>
+    with SingleTickerProviderStateMixin {
   List<MyVideo> _videos = [];
   bool _isLoading = false;
   late AnimationController _animationController;
@@ -75,45 +75,44 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
           children: [
             Container(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
+              // decoration: BoxDecoration(
+              //   color: Colors.grey[900],
+              //   borderRadius: BorderRadius.only(
+              //     bottomLeft: Radius.circular(15),
+              //     bottomRight: Radius.circular(15),
+              //   ),
+              //   boxShadow: [
+              //     BoxShadow(
+              //       color: Colors.black26,
+              //       blurRadius: 6,
+              //       offset: Offset(0, 3),
+              //     ),
+              //   ],
+              // ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.favorite_rounded,
+                  //       color: AppColors.primaryColor,
+                  //       size: 28,
+                  //     ),
+                  //     SizedBox(width: 12),
+                  //     Text(
+                  //       'Favorites',
+                  //       style: GoogleFonts.roboto(
+                  //         fontSize: 24,
+                  //         fontWeight: FontWeight.bold,
+                  //         color: Colors.white,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   Row(
                     children: [
-                      Icon(
-                        Icons.favorite_rounded,
-                        color: AppColors.primaryColor,
-                        size: 28,
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Favorites',
-                        style: GoogleFonts.roboto(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ), Row(
-                    children: [
-
-                      if (_videos.isNotEmpty)
-                        SizedBox(width: 8),
+                      if (_videos.isNotEmpty) SizedBox(width: 8),
                       if (_videos.isNotEmpty)
                         ElevatedButton.icon(
                           onPressed: () => playing.setQueue(_videos),
@@ -123,7 +122,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
                           icon: Icon(Icons.play_arrow, size: 16),
                           label: Text(
@@ -136,21 +136,20 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
                         ),
                     ],
                   ),
-
                 ],
               ),
             ),
             Expanded(
               child: isOnline
                   ? LiquidPullToRefresh(
-                onRefresh: _handleRefresh,
-                color: AppColors.primaryColor,
-                backgroundColor: Colors.grey[900],
-                height: 100,
-                animSpeedFactor: 2,
-                showChildOpacityTransition: true,
-                child: _buildContent(),
-              )
+                      onRefresh: _handleRefresh,
+                      color: AppColors.primaryColor,
+                      backgroundColor: Colors.grey[900],
+                      height: 100,
+                      animSpeedFactor: 2,
+                      showChildOpacityTransition: true,
+                      child: _buildContent(),
+                    )
                   : _buildOfflineState(),
             ),
           ],
@@ -213,7 +212,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
             ElevatedButton(
               onPressed: () {
                 // Navigate to YouTube page or main content
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> YouTubeTwitchTabs()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => YouTubeTwitchTabs()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryColor,
@@ -240,7 +240,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
       itemCount: _videos.length,
       itemBuilder: (context, index) {
         final video = _videos[index];
-        return VideoComponent(video: video);
+        return VideoComponent(
+          video: video,
+          from: FromWhere.SEARCH,
+        );
       },
     );
   }
@@ -284,7 +287,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with SingleTickerProvid
           ElevatedButton(
             onPressed: () {
               // Navigate to Downloads page
-              DefaultTabController.of(context)?.animateTo(2);
+              DefaultTabController.of(context).animateTo(2);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.grey[800],
