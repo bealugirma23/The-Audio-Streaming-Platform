@@ -91,7 +91,7 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 180,
+          height: 150,
           width: double.infinity, // ✅ ensures bounded width
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -123,7 +123,6 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
             },
           ),
         ),
-        const SizedBox(height: 24),
       ],
     );
   }
@@ -177,8 +176,8 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                           const SizedBox(width: 12),
                           const RecentlyPlayedCard(),
                           const SizedBox(width: 12),
-                          const RecentlyPlayedCard(),
-                          const SizedBox(width: 12),
+                          // const RecentlyPlayedCard(),
+                          // const SizedBox(width: 12),
                           Container(
                             margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
                             child: Padding(
@@ -204,7 +203,7 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    // const SizedBox(height: 24),
 
                     // Trending sections
                     _buildTrendingSection(
