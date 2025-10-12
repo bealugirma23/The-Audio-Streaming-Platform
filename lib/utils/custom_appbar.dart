@@ -1,6 +1,7 @@
 // Extracted Custom AppBar
 import 'package:audiobinge/utils/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -8,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle.dark,
       automaticallyImplyLeading: false, // Hide the back button
       title: Row(
         children: [
@@ -24,20 +26,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              // color: Colors.white,
             ),
           ),
         ],
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: IconButton(
-              onPressed: () {
+          padding: EdgeInsetsGeometry.fromLTRB(0, 0, 16, 0),
+          child: InkWell(
+              onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => SettingPage()));
               },
-              icon: Icon(Icons.settings_outlined, color: Colors.white)),
+              child: Icon(
+                Icons.settings_outlined,
+                // color: Colors.white,
+              )),
         ),
       ],
       backgroundColor: Colors.transparent,

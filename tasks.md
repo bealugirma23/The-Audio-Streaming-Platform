@@ -11,3 +11,4 @@
 [x] - the home page feed fail fix
 [x] - new setting page for controlling preferences 
 [ ] - importing playlist feature  
+[] - adaptive splash screen 

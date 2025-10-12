@@ -87,15 +87,16 @@ class _VideoComponentState extends State<VideoComponent> {
                       ? 180
                       : double.infinity, // ✅ Add this
                   decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius: BorderRadius.circular(15),
-                    border: isCurrentVideo
-                        ? Border.all(
-                            color: AppColors
-                                .primaryColor, // Highlight border if current video
-                            width: 2,
-                          )
-                        : null,
+                    // color: Colors.black87,
+                    // color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(12),
+                    //   border: isCurrentVideo
+                    //       ? Border.all(
+                    //           color: AppColors
+                    //               .primaryColor, // Highlight border if current video
+                    //           width: 2,
+                    //         )
+                    //       : null,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,8 +105,8 @@ class _VideoComponentState extends State<VideoComponent> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(15),
-                              bottom: Radius.circular(15),
+                              top: Radius.circular(12),
+                              bottom: Radius.circular(12),
                             ),
                             child: (widget.video.localimage != null)
                                 ? Image.file(
@@ -134,7 +135,7 @@ class _VideoComponentState extends State<VideoComponent> {
                             child: PopupMenuButton<String>(
                               icon: Icon(
                                 Icons.more_vert,
-                                color: Colors.white,
+                                // color: Colors.white,
                                 size: 20,
                               ),
                               onSelected: (String value) {
@@ -157,7 +158,7 @@ class _VideoComponentState extends State<VideoComponent> {
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text('Added to Queue'),
-                                          backgroundColor: Colors.white,
+                                          // backgroundColor: Colors.white,
                                           elevation: 10,
                                           behavior: SnackBarBehavior.floating,
                                           margin: EdgeInsets.all(5),
@@ -170,7 +171,7 @@ class _VideoComponentState extends State<VideoComponent> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Added to favorites'),
-                                        backgroundColor: Colors.white,
+                                        // backgroundColor: Colors.white,
                                         elevation: 10,
                                         behavior: SnackBarBehavior.floating,
                                         margin: EdgeInsets.all(5),
@@ -271,7 +272,7 @@ class _VideoComponentState extends State<VideoComponent> {
                               left: 8,
                               child: Icon(
                                 Icons.play_arrow,
-                                color: AppColors.primaryColor,
+                                // color: AppColors.primaryColor,
                                 size: 24,
                               ),
                             ),
@@ -281,8 +282,8 @@ class _VideoComponentState extends State<VideoComponent> {
                         LinearProgressIndicator(
                           value: progress,
                           backgroundColor: Colors.black87,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.primaryColor),
+                          //   valueColor: AlwaysStoppedAnimation<Color>(
+                          //       AppColors.primaryColor),
                         ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -296,7 +297,10 @@ class _VideoComponentState extends State<VideoComponent> {
                               style: TextStyle(
                                 fontSize: 14,
                                 height: 1.2,
-                                color: Colors.white,
+                                color: isCurrentVideo
+                                    ? Theme.of(context).colorScheme.primary
+                                    : null,
+                                // color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -320,14 +324,16 @@ class _VideoComponentState extends State<VideoComponent> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  // color: Colors.grey,
+                                  color: isCurrentVideo
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.secondary,
                                   fontSize: 12,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        
                       ),
                     ],
                   ),

@@ -58,7 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a search query'),
-          backgroundColor: AppColors.primaryColor,
+          // backgroundColor: AppColors.primaryColor,
         ),
       );
       return;
@@ -91,7 +91,6 @@ class _SearchScreenState extends State<SearchScreen> {
     bool isOnline = Provider.of<NetworkProvider>(context).isOnline;
 
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Column(
         children: [
           Padding(
@@ -115,8 +114,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: AppColors.primaryColor, width: 1.5),
+                      // borderSide:
+                          // BorderSide(color: AppColors.primaryColor, width: 1.5),
                     ),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -200,7 +199,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: isOnline
                 ? LiquidPullToRefresh(
                     onRefresh: _handleRefresh,
-                    color: AppColors.primaryColor,
+                    // color: AppColors.primaryColor,
                     animSpeedFactor: 3,
                     child: GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

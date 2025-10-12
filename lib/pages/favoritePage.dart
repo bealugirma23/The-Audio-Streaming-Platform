@@ -68,7 +68,6 @@ class _FavoriteScreenState extends State<FavoriteScreen>
     bool isOnline = Provider.of<NetworkProvider>(context).isOnline;
 
     return Scaffold(
-      backgroundColor: Colors.black,
       body: FadeTransition(
         opacity: _animation,
         child: Column(
@@ -117,8 +116,8 @@ class _FavoriteScreenState extends State<FavoriteScreen>
                         ElevatedButton.icon(
                           onPressed: () => playing.setQueue(_videos),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            foregroundColor: Colors.white,
+                            // backgroundColor: AppColors.primaryColor,
+                            // foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -143,8 +142,8 @@ class _FavoriteScreenState extends State<FavoriteScreen>
               child: isOnline
                   ? LiquidPullToRefresh(
                       onRefresh: _handleRefresh,
-                      color: AppColors.primaryColor,
-                      backgroundColor: Colors.grey[900],
+                      // color: AppColors.primaryColor,
+                      // backgroundColor: Colors.grey[900],
                       height: 100,
                       animSpeedFactor: 2,
                       showChildOpacityTransition: true,
@@ -216,8 +215,8 @@ class _FavoriteScreenState extends State<FavoriteScreen>
                     builder: (context) => YouTubeTwitchTabs()));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: Colors.white,
+                // backgroundColor: AppColors.primaryColor,
+                // foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

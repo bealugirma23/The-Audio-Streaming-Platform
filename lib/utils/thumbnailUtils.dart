@@ -72,7 +72,6 @@ Widget buildMarqueeVideoTitle(String title) {
       style: TextStyle(
         fontSize: 24.0,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
         letterSpacing: 1.2,
       ),
       scrollAxis: Axis.horizontal,

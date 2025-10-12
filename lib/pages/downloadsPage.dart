@@ -66,7 +66,6 @@ class _DownloadScreenState extends State<DownloadScreen>
     final playing = context.watch<Playing>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
       body: FadeTransition(
         opacity: _animation,
         child: Column(
@@ -115,8 +114,8 @@ class _DownloadScreenState extends State<DownloadScreen>
                         ElevatedButton.icon(
                           onPressed: () => playing.setQueue(_videos),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            foregroundColor: Colors.white,
+                            // backgroundColor: AppColors.primaryColor,
+                            // foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -140,7 +139,7 @@ class _DownloadScreenState extends State<DownloadScreen>
             Expanded(
               child: LiquidPullToRefresh(
                 onRefresh: _handleRefresh,
-                color: AppColors.primaryColor, // Using app's yellowish color
+                // color: AppColors.primaryColor, // Using app's yellowish color
                 backgroundColor: Colors.grey[900],
                 height: 100,
                 animSpeedFactor: 2,
@@ -213,8 +212,8 @@ class _DownloadScreenState extends State<DownloadScreen>
                     builder: (context) => YouTubeTwitchTabs()));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: Colors.white,
+                // backgroundColor: AppColors.primaryColor,
+                // foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

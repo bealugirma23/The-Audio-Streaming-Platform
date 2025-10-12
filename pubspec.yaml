@@ -59,6 +59,7 @@ dependencies:
   riverpod: ^2.6.1
   logger: ^2.6.1
   shadcn_flutter: ^0.0.44
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_svg: ^2.0.17
@@ -95,8 +96,12 @@ flutter:
 
 
 flutter_native_splash:
-  color: "#CFB53B"
-  image: assets/icon.png
+  # color: "#CFB53B"
+  color: "#ffffff"
+  color_dark: "#121212"
+  image: assets/splash_screen.png
   android_12: 
-    color: "#CFB53B"
-    image: assets/icon.png
+    # color: "#CFB53B"
+    icon_background_color: "#ffffff"
+    image: assets/splash_screen.png
+    icon_background_color_dark: "#121212"

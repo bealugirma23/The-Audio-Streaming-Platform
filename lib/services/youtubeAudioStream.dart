@@ -10,7 +10,6 @@ import 'fetchYoutubeStreamUrl.dart';
 import 'player.dart';
 import '../utils/thumbnailUtils.dart';
 
-
 // LikeNotifier provider
 class LikeNotifier extends ChangeNotifier {
   bool _isLiked = false;
@@ -118,273 +117,294 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainer
+                    .withValues(alpha: 0.5),
+                // color: Colors.black.withOpacity(0.5),
               ),
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Album Art
-              Container(
-                height: 280,
-                width: 280,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                  image: (playing.video.localimage != null)
-                      ? DecorationImage(
-                          image: FileImage(File(playing.video.localimage!)),
-                          fit: BoxFit.cover,
-                        )
-                      : (isOnline)
-                          ? DecorationImage(
-                              image: NetworkImage(
-                                  playing.video.thumbnails![0].url!),
-                              fit: BoxFit.cover,
-                            )
-                          : DecorationImage(
-                              image: AssetImage('assets/logo.png'),
-                              fit: BoxFit.cover,
-                            ),
-                ),
-              ),
-              SizedBox(height: 30),
-
-              // Song Title & Channel
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                        height: 40,
-                        child: buildMarqueeVideoTitle(playing.video.title!)),
-                    SizedBox(height: 6),
-                    GestureDetector(
-                      behavior: HitTestBehavior
-                          .opaque, // Makes the widget capture the tap
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChannelVideosPage(
-                              videoId: playing.video.videoId!,
-                              channelName: playing.video.channelName ?? '',
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        playing.video.channelName ?? 'Unknown channel',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 750,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Album Art
+                Container(
+                  height: 300,
+                  width: 350,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                        offset: Offset(0, 4),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              // Like, Add to Playlist, and Lyrics Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Consumer<LikeNotifier>(
-                      builder: (context, likeNotifier, child) {
-                    return _animatedButton(
-                      likeNotifier.isLiked
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      () {
-                        likeNotifier.toggleLike();
-                      },
-                      28,
-                      color: likeNotifier.isLiked ? Colors.red : Colors.white,
-                    );
-                  }),
-                  // SizedBox(width: 20),
-                  // _animatedButton(
-                  //   _isInPlaylist ? Icons.playlist_add_check : Icons.playlist_add,
-                  //       () {
-                  //     setState(() {
-                  //       _isInPlaylist = !_isInPlaylist;
-                  //     });
-                  //   },
-                  //   28,
-                  //   color: _isInPlaylist ? Colors.green : Colors.white,
-                  // ),
-                  SizedBox(width: 20),
-                  _animatedButton(
-                    Icons.lyrics,
-                    () {
-                      setState(() {
-                        _showLyrics = !_showLyrics;
-                        fetchYoutubeClosedCaptions(playing.video.videoId!);
-                      });
-                    },
-                    28,
-                    color: _showLyrics ? Colors.blue : Colors.white,
+                    ],
+                    image: (playing.video.localimage != null)
+                        ? DecorationImage(
+                            image: FileImage(File(playing.video.localimage!)),
+                            fit: BoxFit.cover,
+                          )
+                        : (isOnline)
+                            ? DecorationImage(
+                                image: NetworkImage(
+                                    playing.video.thumbnails![0].url!),
+                                fit: BoxFit.cover,
+                              )
+                            : DecorationImage(
+                                image: AssetImage('assets/logo.png'),
+                                fit: BoxFit.cover,
+                              ),
                   ),
-                ],
-              ),
-              SizedBox(height: 20),
-              // Lyrics Section (Conditional)
-              if (_showLyrics)
+                ),
+                SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    playing.currentCaption,
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ),
-              SizedBox(height: 20),
-              // Progress Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: Colors.white,
-                        inactiveTrackColor: Colors.white38,
-                        thumbColor: Colors.white,
-                        thumbShape:
-                            RoundSliderThumbShape(enabledThumbRadius: 8),
-                        overlayShape:
-                            RoundSliderOverlayShape(overlayRadius: 16),
-                      ),
-                      child: Slider(
-                        min: 0,
-                        max: playing.duration.inSeconds.toDouble(),
-                        value: playing.position.inSeconds.toDouble(),
-                        onChanged: (double value) {
-                          playing.seekAudio(Duration(seconds: value.toInt()));
-                        },
-                      ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: buildTimeDisplay(
-                            playing.position, playing.duration)),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: _speedControlExpanded
-                    ? Row(
-                        children: [
-                          Text("Speed", style: TextStyle(color: Colors.white)),
-                          Expanded(
-                            child: Slider(
-                              min: 0.5,
-                              max: 2.0,
-                              divisions: 6,
-                              value: playbackSpeed,
-                              activeColor: Colors.white,
-                              inactiveColor: Colors.white38,
-                              onChanged: (double value) {
+                  child: _speedControlExpanded
+                      ? Row(
+                          children: [
+                            Text("Speed",
+                                style: TextStyle(color: Colors.white)),
+                            Expanded(
+                              child: Slider(
+                                min: 0.5,
+                                max: 2.0,
+                                divisions: 6,
+                                value: playbackSpeed,
+                                activeColor: Colors.white,
+                                inactiveColor: Colors.white38,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    playbackSpeed = value;
+                                  });
+                                  playing.audioPlayer.setSpeed(value);
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon:
+                                  Icon(Icons.expand_less, color: Colors.white),
+                              onPressed: () {
                                 setState(() {
-                                  playbackSpeed = value;
+                                  _speedControlExpanded = false;
                                 });
-                                playing.audioPlayer.setSpeed(value);
                               },
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.expand_less, color: Colors.white),
-                            onPressed: () {
-                              setState(() {
-                                _speedControlExpanded = false;
-                              });
-                            },
-                          ),
-                        ],
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _speedControlExpanded = true;
-                          });
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.speed, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text("${playbackSpeed.toStringAsFixed(1)}x",
-                                style: TextStyle(color: Colors.white)),
                           ],
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _speedControlExpanded = true;
+                            });
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.speed, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text("${playbackSpeed.toStringAsFixed(1)}x",
+                                  style: TextStyle(color: Colors.white)),
+                            ],
+                          ),
                         ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(height: 50),
+                // Song Title & Channel
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 35,
+                        child: buildMarqueeVideoTitle(playing.video.title!),
                       ),
-              ),
-              SizedBox(height: 30),
-              // Playback Controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _animatedButton(Icons.shuffle, playing.toggleShuffle, 24,
-                      color: playing.isShuffling ? Colors.blue : Colors.white),
-                  SizedBox(width: 16),
-                  _animatedButton(Icons.skip_previous, playing.previous, 32),
-                  SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: () {
-                      playing.isPlaying ? playing.pause() : playing.play();
-                    },
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                            offset: Offset(0, 4),
-                          )
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChannelVideosPage(
+                                    videoId: playing.video.videoId!,
+                                    channelName:
+                                        playing.video.channelName ?? '',
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              playing.video.channelName ?? 'Unknown channel',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Consumer<LikeNotifier>(
+                                builder: (context, likeNotifier, child) {
+                                  return _animatedButton(
+                                    likeNotifier.isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    likeNotifier.toggleLike,
+                                    28,
+                                    color: likeNotifier.isLiked
+                                        ? Colors.red
+                                        : Colors.white,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 20),
+                              _animatedButton(
+                                Icons.lyrics,
+                                () {
+                                  setState(() {
+                                    _showLyrics = !_showLyrics;
+                                    fetchYoutubeClosedCaptions(
+                                        playing.video.videoId!);
+                                  });
+                                },
+                                28,
+                                color: _showLyrics ? Colors.blue : Colors.white,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      child: Icon(
-                        playing.isPlaying
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_filled,
-                        size: 72,
-                        color: Colors.white,
-                      ),
+                    ],
+                  ),
+                ),
+
+                // SizedBox(height: 20),
+                // Lyrics Section (Conditional)
+                if (_showLyrics)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      playing.currentCaption,
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
                     ),
                   ),
-                  SizedBox(width: 16),
-                  _animatedButton(Icons.skip_next, () {
-                    playing.next();
-                  }, 32),
-                  SizedBox(width: 16),
-                  _animatedButton(
-                      playing.isLooping == 0
-                          ? Icons.repeat_rounded
-                          : playing.isLooping == 1
-                              ? Icons.repeat_one
-                              : Icons.repeat_rounded, () {
-                    playing.toggleLooping();
-                  }, 24,
-                      color: playing.isLooping == 0
-                          ? Colors.white
-                          : playing.isLooping == 1
-                              ? Colors.white
-                              : Colors.blue),
-                ],
-              ),
-            ],
+                // SizedBox(height: 20),
+
+                // Progress Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Colors.white,
+                          inactiveTrackColor: Colors.white38,
+                          thumbColor: Colors.white,
+                          thumbShape:
+                              RoundSliderThumbShape(enabledThumbRadius: 8),
+                          overlayShape:
+                              RoundSliderOverlayShape(overlayRadius: 16),
+                        ),
+                        child: Slider(
+                          min: 0,
+                          max: playing.duration.inSeconds.toDouble(),
+                          value: playing.position.inSeconds.toDouble(),
+                          onChanged: (double value) {
+                            playing.seekAudio(Duration(seconds: value.toInt()));
+                          },
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: buildTimeDisplay(
+                              playing.position, playing.duration)),
+                    ],
+                  ),
+                ),
+
+                // Playback Controls
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _animatedButton(Icons.shuffle, playing.toggleShuffle, 24,
+                        color:
+                            playing.isShuffling ? Colors.blue : Colors.white),
+                    SizedBox(width: 16),
+                    _animatedButton(Icons.skip_previous, playing.previous, 32),
+                    SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: () {
+                        playing.isPlaying ? playing.pause() : playing.play();
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Icon(
+                          playing.isPlaying
+                              ? Icons.pause_circle_filled
+                              : Icons.play_circle_filled,
+                          size: 72,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    _animatedButton(Icons.skip_next, () {
+                      playing.next();
+                    }, 32),
+                    SizedBox(width: 16),
+                    _animatedButton(
+                        playing.isLooping == 0
+                            ? Icons.repeat_rounded
+                            : playing.isLooping == 1
+                                ? Icons.repeat_one
+                                : Icons.repeat_rounded, () {
+                      playing.toggleLooping();
+                    }, 24,
+                        color: playing.isLooping == 0
+                            ? Colors.white
+                            : playing.isLooping == 1
+                                ? Colors.white
+                                : Colors.blue),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

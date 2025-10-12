@@ -1,4 +1,6 @@
 import 'package:audiobinge/theme/colors.dart';
+import 'package:audiobinge/utils/settings/themes_page.dart';
+import 'package:audiobinge/utils/settings/user_interests_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
@@ -11,26 +13,25 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _notificationsEnabled = true;
   bool _darkModeEnabled = true;
   bool _autoPlayEnabled = false;
   double _audioQuality = 2;
-
+// get current theme
+//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF121212),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Settings',
           style: TextStyle(
-            color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -38,25 +39,6 @@ class _SettingPageState extends State<SettingPage> {
       ),
       body: ListView(
         children: [
-          // _buildSectionHeader('Account'),
-          // _buildSettingTile(
-          //   icon: Icons.person_outline,
-          //   title: 'Edit Profile',
-          //   subtitle: 'Change your profile information',
-          //   onTap: () {},
-          // ),
-          // _buildSettingTile(
-          //   icon: Icons.email_outlined,
-          //   title: 'Email',
-          //   subtitle: 'user@example.com',
-          //   onTap: () {},
-          // ),
-          // _buildSettingTile(
-          //   icon: Icons.lock_outline,
-          //   title: 'Change Password',
-          //   onTap: () {},
-          // ),
-          // const SizedBox(height: 20),
           _buildSectionHeader('Playback'),
           _buildSwitchTile(
             icon: Icons.play_circle_outline,
@@ -95,6 +77,27 @@ class _SettingPageState extends State<SettingPage> {
           //     });
           //   },
           // ),
+          _buildSettingTile(
+            icon: Icons.interests,
+            title: 'Interests',
+            subtitle: 'Change what you want to see',
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ChangeInterests()));
+            },
+          ),
+
+          _buildSettingTile(
+            icon: Icons.color_lens,
+            title: 'Themes',
+            subtitle: 'Change themes you prefer',
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ThemesPage()));
+            },
+          ),
           _buildSwitchTile(
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
@@ -183,7 +186,7 @@ class _SettingPageState extends State<SettingPage> {
       child: Text(
         title,
         style: const TextStyle(
-          color: AppColors.primaryColor,
+          // color: AppColors.primaryColor,
           fontSize: 14,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -202,15 +205,14 @@ class _SettingPageState extends State<SettingPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF282828),
+          color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: Colors.white, size: 24),
+        child: Icon(icon, size: 24),
       ),
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -243,15 +245,15 @@ class _SettingPageState extends State<SettingPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF282828),
+                    color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: Colors.white, size: 24),
+        child: Icon(icon,  size: 24),
       ),
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+        
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -260,7 +262,6 @@ class _SettingPageState extends State<SettingPage> {
           ? Text(
               subtitle,
               style: const TextStyle(
-                color: Color(0xFFB3B3B3),
                 fontSize: 14,
               ),
             )
@@ -268,7 +269,7 @@ class _SettingPageState extends State<SettingPage> {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: AppColors.primaryColor,
+        // activeColor: AppColors.primaryColor,
       ),
     );
   }
@@ -295,7 +296,6 @@ class _SettingPageState extends State<SettingPage> {
         backgroundColor: const Color(0xFF282828),
         title: const Text(
           'Audio Quality',
-          style: TextStyle(color: Colors.white),
         ),
         content: StatefulBuilder(
           builder: (context, setDialogState) {
@@ -314,7 +314,7 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
                   value: 0,
                   groupValue: _audioQuality.toInt(),
-                  activeColor: AppColors.primaryColor,
+                  // activeColor: AppColors.primaryColor,
                   onChanged: (value) {
                     setDialogState(() {
                       _audioQuality = value!.toDouble();
@@ -328,7 +328,7 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
                   value: 1,
                   groupValue: _audioQuality.toInt(),
-                  activeColor: AppColors.primaryColor,
+                  // activeColor: AppColors.primaryColor,
                   onChanged: (value) {
                     setDialogState(() {
                       _audioQuality = value!.toDouble();
@@ -342,7 +342,7 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
                   value: 2,
                   groupValue: _audioQuality.toInt(),
-                  activeColor: AppColors.primaryColor,
+                  // activeColor: AppColors.primaryColor,
                   onChanged: (value) {
                     setDialogState(() {
                       _audioQuality = value!.toDouble();
@@ -356,7 +356,7 @@ class _SettingPageState extends State<SettingPage> {
                       style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
                   value: 3,
                   groupValue: _audioQuality.toInt(),
-                  activeColor: AppColors.primaryColor,
+                  // activeColor: AppColors.primaryColor,
                   onChanged: (value) {
                     setDialogState(() {
                       _audioQuality = value!.toDouble();
@@ -378,8 +378,10 @@ class _SettingPageState extends State<SettingPage> {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('OK',
-                style: TextStyle(color: AppColors.primaryColor)),
+            child: const Text(
+              'OK',
+              // style: TextStyle(color: AppColors.primaryColor)
+            ),
           ),
         ],
       ),
@@ -408,12 +410,14 @@ class _SettingPageState extends State<SettingPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Cache cleared successfully'),
-                  backgroundColor: AppColors.primaryColor,
+                  // backgroundColor: AppColors.primaryColor,
                 ),
               );
             },
-            child: const Text('Clear',
-                style: TextStyle(color: AppColors.primaryColor)),
+            child: const Text(
+              'Clear',
+              // style: TextStyle(color: AppColors.primaryColor)
+            ),
           ),
         ],
       ),

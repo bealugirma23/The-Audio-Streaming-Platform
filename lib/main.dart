@@ -87,7 +87,7 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
                 left: 0,
                 right: 0,
                 bottom: kBottomNavigationBarHeight +
-                    5, // Position above the bottom nav
+                    36, // Position above the bottom nav
                 child: Dismissible(
                   key: Key("bottomPlayer"),
                   direction: DismissDirection.startToEnd,
@@ -106,15 +106,18 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Container(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Theme.of(context)
+                .scaffoldBackgroundColor
+                .withValues(alpha: 0.5),
             child: BottomNavigationBar(
               currentIndex: _selectedIndex,
               onTap: _onItemTapped,
               backgroundColor: Colors.transparent,
               elevation: 0,
               type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppColors.primaryColor,
-              unselectedItemColor: Colors.grey,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              //  AppColors.primaryColor,
+              // unselectedItemColor: Colors.grey,
               selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
               unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
               items: const <BottomNavigationBarItem>[

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:audiobinge/main.dart';
 import 'package:audiobinge/services/player.dart';
+import 'package:audiobinge/theme/colors.dart';
+import 'package:audiobinge/utils/user_keyword_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:youtube_scrape_api/models/thumbnail.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'models/MyVideo.dart';
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -63,8 +66,8 @@ class _MyAppState extends State<MyApp> {
             thumbnails: [
               Thumbnail(
                   url: 'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
-                    width:720,
-                  height:404)
+                  width: 720,
+                  height: 404)
             ]),
         true);
   }
@@ -78,20 +81,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Audifier',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black87,
-          brightness: Brightness.dark,
-        ).copyWith(
-          surface: Colors.black87,
-          primary: Colors.black87,
-        ),
-        useMaterial3: true,
-      ),
-      home: YouTubeTwitchTabs(),
+      theme: lightRedTheme,
+      home: UserKeywordScreen(),
     );
   }
 }
-

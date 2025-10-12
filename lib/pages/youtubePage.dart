@@ -130,9 +130,10 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   @override
   Widget build(BuildContext context) {
     final isOnline = Provider.of<NetworkProvider>(context).isOnline;
-
+    // if (isOnline == null) {
+    //   return CircularProgressIndicator();
+    // }
     return Scaffold(
-      backgroundColor: Colors.black,
       body: isOnline
           ? SafeArea(
               child: SingleChildScrollView(
@@ -188,7 +189,6 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                                 child: ElevatedButton(
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.amber,
                                     shape: const CircleBorder(),
                                     padding: EdgeInsets
                                         .zero, // ensures it's perfectly round

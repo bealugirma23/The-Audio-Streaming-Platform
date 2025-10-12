@@ -14,7 +14,8 @@ class RecentlyPlayedCard extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.grey[800],
+              // color: Colors.grey[800],
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.album, size: 40),
@@ -28,7 +29,7 @@ class RecentlyPlayedCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'Artist Name',
-            style: TextStyle(color: Colors.grey[400], fontSize: 11),
+            style: TextStyle(fontSize: 11),
             overflow: TextOverflow.ellipsis,
           ),
         ],
