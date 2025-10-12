@@ -49,13 +49,14 @@ class _BottomPlayerState extends State<BottomPlayer> {
                         context,
                         PageRouteBuilder(
                           transitionDuration: const Duration(milliseconds: 250),
-                          pageBuilder: (context, animation, secondaryAnimation) =>
-                              YoutubeAudioPlayer(videoId: 'fRh_vgS2dFE'),
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  YoutubeAudioPlayer(videoId: 'fRh_vgS2dFE'),
                           transitionsBuilder:
                               (context, animation, secondaryAnimation, child) {
                             const begin = Offset(0.0, 1.0);
                             const end = Offset.zero;
-        
+
                             final tween = Tween(begin: begin, end: end);
                             final offsetAnimation = animation.drive(tween);
                             return SlideTransition(
@@ -114,11 +115,16 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                 ),
                               ),
                               SizedBox(height: 4),
-                              Text(
-                                playing.video.channelName!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  // color: Colors.grey[400],
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width - 180,
+                                child: Text(
+                                  playing.video.channelName!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    // color: Colors.grey[400],
+                                  ),
                                 ),
                               ),
                             ],
@@ -172,11 +178,13 @@ class _BottomPlayerState extends State<BottomPlayer> {
                   ),
                   child: Slider(
                     value: playing.duration.inSeconds > 0.0
-                        ? playing.position.inSeconds / playing.duration.inSeconds
+                        ? playing.position.inSeconds /
+                            playing.duration.inSeconds
                         : 0.0,
                     onChanged: (value) {
                       playing.seekAudio(Duration(
-                          seconds: (value * playing.duration.inSeconds).toInt()));
+                          seconds:
+                              (value * playing.duration.inSeconds).toInt()));
                     },
                   ),
                 ),

@@ -1,5 +1,8 @@
+import 'package:audiobinge/models/MyVideo.dart';
+import 'package:audiobinge/models/PlayList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:localstore/localstore.dart';
 import 'package:youtube_scrape_api/models/video.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 
@@ -143,18 +146,23 @@ class _AddPlayListScreenState extends State<AddPlayListScreen> {
                     ),
                     onPressed: () async {
                       final codetxt = _linkController.text;
-                      String query = "Wegz";
+                      final db = Localstore.instance;
                       YoutubeDataApi youtubeDataApi = YoutubeDataApi();
                       List videoResult =
-                          await youtubeDataApi.fetchSearchVideo(query);
-
-                      print("element: ${videoResult}");
-                      videoResult.forEach((element) {
-                        print("element: ${element}");
-                        // if (element is PlayList) {
-                        //   PlayList playList = element;
-                        // }
-                      });
+                          await youtubeDataApi.fetchSearchVideo(codetxt);
+                      print("element: ${videoResult.toString()}");
+                      // final addedPlaylist = MyPlayList(
+                      //     coverImage: videoResult[0]['cover_image'],
+                      //     title: "Playlist 1",
+                      //     videos: videoResult.forEach((element) {
+                      //       element;
+                      //     })
+                      // if successful create and go to the  playlist
+                      // add to database with title
+                      // db.add(addedPlaylist);
+                      // Navigator.of(context).push(
+                      // MaterialPageRoute(builder: (context) => PlayListDetail()));
+                      // },
                     },
                     child: const Text(
                       "Add to Playlist",
@@ -171,29 +179,6 @@ class _AddPlayListScreenState extends State<AddPlayListScreen> {
         ),
         if (_isLoading) CircularProgressIndicator(),
       ],
-    );
-  }
-
-  Future<dynamic> _successModal(bool val) {
-    return showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: 200,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text('This is a modal bottom sheet!'),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

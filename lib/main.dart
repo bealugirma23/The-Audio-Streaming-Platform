@@ -25,6 +25,7 @@ void main() async {
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
+    // androidNotificationIcon: 'drawable/ic_notification'
   );
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => ThemeModeState()),
@@ -95,7 +96,7 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
                 left: 0,
                 right: 0,
                 bottom: kBottomNavigationBarHeight +
-                    36, // Position above the bottom nav
+                    32, // Position above the bottom nav
                 child: Dismissible(
                   key: Key("bottomPlayer"),
                   direction: DismissDirection.startToEnd,

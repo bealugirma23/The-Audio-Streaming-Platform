@@ -183,9 +183,10 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          const RecentlyPlayedCard(),
-                          const SizedBox(width: 12),
-                          const RecentlyPlayedCard(),
+                          const RecentlyPlayedCard(
+                            title: 'Liked Playlist',
+                            length: '0 Videos',
+                          ),
                           const SizedBox(width: 12),
                           // const RecentlyPlayedCard(),
                           // const SizedBox(width: 12),

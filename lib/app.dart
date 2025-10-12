@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:audiobinge/main.dart';
+import 'package:audiobinge/pages/youtubePage.dart';
 import 'package:audiobinge/services/player.dart';
 import 'package:audiobinge/theme/colors.dart';
 import 'package:audiobinge/theme/isDark.dart';
@@ -88,7 +90,8 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: theme.themeData,
       themeMode: isDarkMode.isDark ? ThemeMode.dark : ThemeMode.light,
-      home: UserKeywordScreen(),
+      home: YouTubeTwitchTabs(),
+      // home: UserKeywordScreen(),
     );
   }
 }

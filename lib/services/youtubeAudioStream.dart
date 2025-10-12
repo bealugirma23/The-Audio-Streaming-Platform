@@ -43,429 +43,367 @@ class YoutubeAudioPlayer extends StatefulWidget {
 }
 
 class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
-  final bool _isInPlaylist = false; // Track playlist state
-  bool _showLyrics = false; // Track lyrics visibility
-  double playbackSpeed = 1.0; // Tracks the current playback speed
-  bool _speedControlExpanded = false; // Track the speed control
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final playing = context.read<Playing>();
-      context.read<LikeNotifier>().setVideo(playing.video);
-    });
-  }
+  bool _showLyrics = false;
+  double playbackSpeed = 1.0;
+  bool _speedControlExpanded = false;
 
   @override
   Widget build(BuildContext context) {
+    final isOnline = Provider.of<NetworkProvider>(context).isOnline;
     final playing = context.watch<Playing>();
-    final likeNotifier =
-        context.watch<LikeNotifier>(); // Watch the LikeNotifier
-    bool isOnline = Provider.of<NetworkProvider>(context).isOnline;
-
-    // Set the current video in LikeNotifier
+    final likeNotifier = context.watch<LikeNotifier>();
     likeNotifier.setVideo(playing.video);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context); // Close the player
-          },
-        ),
-        title: const Text('Now Playing'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.queue_music, color: Colors.white),
-            onPressed: () {
-              _showQueue(context, playing, isOnline);
-            },
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Blurred Background
-          Positioned.fill(
-              child: (playing.video.localimage != null)
-                  ? Image.file(
-                      File(playing
-                          .video.localimage!), // Use Image.file for local paths
-                      height: 100,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : (isOnline)
-                      ? Image.network(
-                          playing.video.thumbnails![0].url!,
-                          height: 100,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          'assets/icon.png', // Replace with your asset path
-                          height: 100,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainer
-                    .withValues(alpha: 0.5),
-                // color: Colors.black.withOpacity(0.5),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenHeight = constraints.maxHeight;
+        final screenWidth = constraints.maxWidth;
+
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                  color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text('Now Playing'),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.queue_music, color: Colors.white),
+                onPressed: () {
+                  _showQueue(context, playing, isOnline);
+                },
               ),
-            ),
+            ],
           ),
-          SizedBox(
-            width: double.infinity,
-            height: 750,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Album Art
-                Container(
-                  height: 300,
-                  width: 350,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                    image: (playing.video.localimage != null)
-                        ? DecorationImage(
-                            image: FileImage(File(playing.video.localimage!)),
-                            fit: BoxFit.cover,
-                          )
-                        : (isOnline)
-                            ? DecorationImage(
-                                image: NetworkImage(
-                                    playing.video.thumbnails![0].url!),
-                                fit: BoxFit.cover,
-                              )
-                            : DecorationImage(
-                                image: AssetImage('assets/logo.png'),
-                                fit: BoxFit.cover,
-                              ),
-                  ),
-                ),
-                SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _speedControlExpanded
-                      ? Row(
-                          children: [
-                            Text("Speed",
-                                style: TextStyle(color: Colors.white)),
-                            Expanded(
-                              child: Slider(
-                                min: 0.5,
-                                max: 2.0,
-                                divisions: 6,
-                                value: playbackSpeed,
-                                activeColor: Colors.white,
-                                inactiveColor: Colors.white38,
-                                onChanged: (double value) {
-                                  setState(() {
-                                    playbackSpeed = value;
-                                  });
-                                  playing.audioPlayer.setSpeed(value);
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon:
-                                  Icon(Icons.expand_less, color: Colors.white),
-                              onPressed: () {
-                                setState(() {
-                                  _speedControlExpanded = false;
-                                });
-                              },
-                            ),
-                          ],
-                        )
-                      : GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _speedControlExpanded = true;
-                            });
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.speed, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text("${playbackSpeed.toStringAsFixed(1)}x",
-                                  style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                        ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 60.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(height: 50),
-                // Song Title & Channel
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+          body: Stack(
+            children: [
+              // Background
+              Positioned.fill(
+                child: _buildBackground(playing, isOnline),
+              ),
+
+              // Main content
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 35,
-                        child: buildMarqueeVideoTitle(playing.video.title!),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChannelVideosPage(
-                                    videoId: playing.video.videoId!,
-                                    channelName:
-                                        playing.video.channelName ?? '',
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              playing.video.channelName ?? 'Unknown channel',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Consumer<LikeNotifier>(
-                                builder: (context, likeNotifier, child) {
-                                  return _animatedButton(
-                                    likeNotifier.isLiked
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    likeNotifier.toggleLike,
-                                    28,
-                                    color: likeNotifier.isLiked
-                                        ? Colors.red
-                                        : Colors.white,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 20),
-                              _animatedButton(
-                                Icons.lyrics,
-                                () {
-                                  setState(() {
-                                    _showLyrics = !_showLyrics;
-                                    fetchYoutubeClosedCaptions(
-                                        playing.video.videoId!);
-                                  });
-                                },
-                                28,
-                                color: _showLyrics ? Colors.blue : Colors.white,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // SizedBox(height: 20),
-                // Lyrics Section (Conditional)
-                if (_showLyrics)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      playing.currentCaption,
-                      style: TextStyle(fontSize: 16, color: Colors.white70),
-                    ),
-                  ),
-                // SizedBox(height: 20),
-
-                // Progress Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: Colors.white,
-                          inactiveTrackColor: Colors.white38,
-                          thumbColor: Colors.white,
-                          thumbShape:
-                              RoundSliderThumbShape(enabledThumbRadius: 8),
-                          overlayShape:
-                              RoundSliderOverlayShape(overlayRadius: 16),
-                        ),
-                        child: Slider(
-                          min: 0,
-                          max: playing.duration.inSeconds.toDouble(),
-                          value: playing.position.inSeconds.toDouble(),
-                          onChanged: (double value) {
-                            playing.seekAudio(Duration(seconds: value.toInt()));
-                          },
-                        ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: buildTimeDisplay(
-                              playing.position, playing.duration)),
-                    ],
-                  ),
-                ),
-
-                // Playback Controls
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _animatedButton(Icons.shuffle, playing.toggleShuffle, 24,
-                        color:
-                            playing.isShuffling ? Colors.blue : Colors.white),
-                    SizedBox(width: 16),
-                    _animatedButton(Icons.skip_previous, playing.previous, 32),
-                    SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () {
-                        playing.isPlaying ? playing.pause() : playing.play();
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
+                      // Album Art
+                      Container(
+                        height: screenHeight * 0.35,
+                        width: screenWidth * 0.8,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
                               blurRadius: 10,
                               spreadRadius: 2,
-                              offset: Offset(0, 4),
-                            )
+                              offset: const Offset(0, 4),
+                            ),
                           ],
-                        ),
-                        child: Icon(
-                          playing.isPlaying
-                              ? Icons.pause_circle_filled
-                              : Icons.play_circle_filled,
-                          size: 72,
-                          color: Colors.white,
+                          image: _buildAlbumImage(playing, isOnline),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 16),
-                    _animatedButton(Icons.skip_next, () {
-                      playing.next();
-                    }, 32),
-                    SizedBox(width: 16),
-                    _animatedButton(
-                        playing.isLooping == 0
-                            ? Icons.repeat_rounded
-                            : playing.isLooping == 1
-                                ? Icons.repeat_one
-                                : Icons.repeat_rounded, () {
-                      playing.toggleLooping();
-                    }, 24,
-                        color: playing.isLooping == 0
-                            ? Colors.white
-                            : playing.isLooping == 1
-                                ? Colors.white
-                                : Colors.blue),
-                  ],
+                      SizedBox(height: screenHeight * 0.03),
+
+                      // Speed control
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.06),
+                        child: _buildSpeedControl(playing),
+                      ),
+                      SizedBox(height: screenHeight * 0.04),
+
+                      // Title and Channel
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.06),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 35,
+                              child: buildMarqueeVideoTitle(
+                                  playing.video.title ?? 'Unknown Title'),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ChannelVideosPage(
+                                            videoId: playing.video.videoId!,
+                                            channelName:
+                                                playing.video.channelName ?? '',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      playing.video.channelName ??
+                                          'Unknown channel',
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Consumer<LikeNotifier>(
+                                      builder: (context, notifier, _) {
+                                        return _animatedButton(
+                                          notifier.isLiked
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          notifier.toggleLike,
+                                          28,
+                                          color: notifier.isLiked
+                                              ? Colors.red
+                                              : Colors.white,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 20),
+                                    _animatedButton(
+                                      Icons.lyrics,
+                                      () {
+                                        setState(() {
+                                          _showLyrics = !_showLyrics;
+                                          fetchYoutubeClosedCaptions(
+                                              playing.video.videoId!);
+                                        });
+                                      },
+                                      28,
+                                      color: _showLyrics
+                                          ? Colors.blue
+                                          : Colors.white,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Lyrics
+                      if (_showLyrics)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.06, vertical: 16),
+                          child: Text(
+                            playing.currentCaption,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.white70),
+                          ),
+                        ),
+
+                      // Progress bar
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.06),
+                        child: Column(
+                          children: [
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: Colors.white,
+                                inactiveTrackColor: Colors.white38,
+                                thumbColor: Colors.white,
+                              ),
+                              child: Slider(
+                                min: 0,
+                                max: playing.duration.inSeconds.toDouble(),
+                                value:
+                                    playing.position.inSeconds.toDouble().clamp(
+                                          0,
+                                          playing.duration.inSeconds.toDouble(),
+                                        ),
+                                onChanged: (value) {
+                                  playing.seekAudio(
+                                      Duration(seconds: value.toInt()));
+                                },
+                              ),
+                            ),
+                            buildTimeDisplay(
+                                playing.position, playing.duration),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: screenHeight * 0.03),
+
+                      // Playback controls
+                      _buildControls(context, playing),
+                      SizedBox(height: screenHeight * 0.05),
+                    ],
+                  ),
                 ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Background image with blur
+  Widget _buildBackground(Playing playing, bool isOnline) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        (playing.video.localimage != null)
+            ? Image.file(File(playing.video.localimage!), fit: BoxFit.cover)
+            : (isOnline)
+                ? Image.network(playing.video.thumbnails![0].url!,
+                    fit: BoxFit.cover)
+                : Image.asset('assets/icon.png', fit: BoxFit.cover),
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            color:
+                Colors.black.withOpacity(0.6), // Adjustable background overlay
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Album art image
+  DecorationImage _buildAlbumImage(Playing playing, bool isOnline) {
+    if (playing.video.localimage != null) {
+      return DecorationImage(
+          image: FileImage(File(playing.video.localimage!)), fit: BoxFit.cover);
+    } else if (isOnline) {
+      return DecorationImage(
+          image: NetworkImage(playing.video.thumbnails![0].url!),
+          fit: BoxFit.cover);
+    } else {
+      return const DecorationImage(
+          image: AssetImage('assets/logo.png'), fit: BoxFit.cover);
+    }
+  }
+
+  // Speed control section
+  Widget _buildSpeedControl(Playing playing) {
+    return _speedControlExpanded
+        ? Row(
+            children: [
+              const Text("Speed", style: TextStyle(color: Colors.white)),
+              Expanded(
+                child: Slider(
+                  min: 0.5,
+                  max: 2.0,
+                  divisions: 6,
+                  value: playbackSpeed,
+                  activeColor: Colors.white,
+                  inactiveColor: Colors.white38,
+                  onChanged: (value) {
+                    setState(() {
+                      playbackSpeed = value;
+                    });
+                    playing.audioPlayer.setSpeed(value);
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.expand_less, color: Colors.white),
+                onPressed: () => setState(() {
+                  _speedControlExpanded = false;
+                }),
+              ),
+            ],
+          )
+        : GestureDetector(
+            onTap: () => setState(() => _speedControlExpanded = true),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.speed, color: Colors.white),
+                const SizedBox(width: 8),
+                Text("${playbackSpeed.toStringAsFixed(1)}x",
+                    style: const TextStyle(color: Colors.white)),
               ],
             ),
+          );
+  }
+
+  // Playback controls row
+  Widget _buildControls(BuildContext context, Playing playing) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _animatedButton(Icons.shuffle, playing.toggleShuffle, 24,
+            color: playing.isShuffling ? Colors.blue : Colors.white),
+        const SizedBox(width: 16),
+        _animatedButton(Icons.skip_previous, playing.previous, 32),
+        const SizedBox(width: 16),
+        GestureDetector(
+          onTap: () {
+            playing.isPlaying ? playing.pause() : playing.play();
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            decoration: const BoxDecoration(shape: BoxShape.circle),
+            child: Icon(
+              playing.isPlaying
+                  ? Icons.pause_circle_filled
+                  : Icons.play_circle_filled,
+              size: 72,
+              color: Colors.white,
+            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 16),
+        _animatedButton(Icons.skip_next, playing.next, 32),
+        const SizedBox(width: 16),
+        _animatedButton(
+          playing.isLooping == 1 ? Icons.repeat_one : Icons.repeat_rounded,
+          playing.toggleLooping,
+          24,
+          color: playing.isLooping == 0 ? Colors.white : Colors.blueAccent,
+        ),
+      ],
     );
   }
 
-  // Helper function to create animated buttons
-  Widget _animatedButton(IconData icon, VoidCallback onPressed, double size,
-      {Color color = Colors.white}) {
-    bool isButtonPressed = false;
-
-    return GestureDetector(
-      onTapDown: (_) => setState(() => isButtonPressed = true),
-      onTapUp: (_) => setState(() => isButtonPressed = false),
-      onTapCancel: () => setState(() => isButtonPressed = false),
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.1),
-        ),
-        child: ScaleTransition(
-          scale: Tween(begin: 1.0, end: 0.9).animate(
-            AlwaysStoppedAnimation(isButtonPressed ? 0.9 : 1.0),
-          ),
-          child: Icon(
-            icon,
-            size: size,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Show Queue Dialog with Currently Playing Highlighted
+  // Reuse your existing queue function (but fix Expanded issue)
   void _showQueue(BuildContext context, Playing playing, bool isOnline) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
+        final screenHeight = MediaQuery.of(context).size.height;
         return Container(
+          height: screenHeight * 0.6,
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.8),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            color: Colors.black.withOpacity(0.9),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Queue',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              SizedBox(height: 16),
+              const Text('Queue',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20)),
+              const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
                   itemCount: playing.queue.length,
@@ -476,42 +414,22 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: (video.localimage != null)
-                            ? Image.file(
-                                File(video
-                                    .localimage!), // Use Image.file for local paths
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              )
+                            ? Image.file(File(video.localimage!),
+                                height: 50, width: 50, fit: BoxFit.cover)
                             : (isOnline)
-                                ? Image.network(
-                                    video.thumbnails![0].url!,
-                                    height: 50,
-                                    width: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/icon.png', // Replace with your asset path
-                                    height: 50,
-                                    width: 50,
-                                    fit: BoxFit.cover,
-                                  ),
+                                ? Image.network(video.thumbnails![0].url!,
+                                    height: 50, width: 50, fit: BoxFit.cover)
+                                : Image.asset('assets/icon.png',
+                                    height: 50, width: 50, fit: BoxFit.cover),
                       ),
-                      title: Text(
-                        video.title!,
-                        style: TextStyle(
-                            color: isCurrent ? Colors.blue : Colors.white,
-                            fontWeight: isCurrent
-                                ? FontWeight.bold
-                                : FontWeight.normal),
-                      ),
-                      subtitle: Text(
-                        video.channelName!,
-                        style: TextStyle(
-                            color: isCurrent
-                                ? Colors.blue.shade200
-                                : Colors.white70),
-                      ),
+                      title: Text(video.title ?? '',
+                          style: TextStyle(
+                              color: isCurrent ? Colors.blue : Colors.white)),
+                      subtitle: Text(video.channelName ?? '',
+                          style: TextStyle(
+                              color: isCurrent
+                                  ? Colors.blue.shade200
+                                  : Colors.white70)),
                       onTap: () {
                         playing.assign(video, false);
                         Navigator.pop(context);
@@ -524,6 +442,23 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
           ),
         );
       },
+    );
+  }
+
+  Widget _animatedButton(IconData icon, VoidCallback onPressed, double size,
+      {Color color = Colors.white}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.1),
+        ),
+        child: Icon(icon, size: size, color: color),
+      ),
     );
   }
 }

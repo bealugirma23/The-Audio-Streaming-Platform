@@ -1,8 +1,7 @@
 import 'package:youtube_scrape_api/models/video.dart';
 class MyVideo extends Video {
   final String? localimage;
-  late final String? localaudio;
-  // Add more custom fields as needed
+  final String? localaudio;
 
   MyVideo({
     super.videoId,
@@ -14,12 +13,16 @@ class MyVideo extends Video {
     super.thumbnails,
     this.localimage,
     this.localaudio,
-    // Add custom fields to the constructor
   });
 
-  factory MyVideo.fromMap(Map<String, dynamic>? map, {String? localimage, String? localaudio}) {
-    Video video = Video.fromMap(map); // Create a regular Video object first
-
+  /// Create from Map (useful when adding local overrides)
+  factory MyVideo.fromMap(
+    Map<String, dynamic>? map, {
+    String? localimage,
+    String? localaudio,
+  }) {
+    if (map == null) return MyVideo();
+    final video = Video.fromMap(map);
     return MyVideo(
       videoId: video.videoId,
       duration: video.duration,
@@ -28,17 +31,32 @@ class MyVideo extends Video {
       views: video.views,
       uploadDate: video.uploadDate,
       thumbnails: video.thumbnails,
-      localimage: localimage,
-      localaudio: localaudio,
+      localimage: localimage ?? map['localimage'],
+      localaudio: localaudio ?? map['localaudio'],
+    );
+  }
+
+  /// Create from JSON string or Map<String, dynamic>
+  factory MyVideo.fromJson(Map<String, dynamic> json) {
+    return MyVideo(
+      videoId: json['videoId'],
+      duration: json['duration'],
+      title: json['title'],
+      channelName: json['channelName'],
+      views: json['views'],
+      uploadDate: json['uploadDate'],
+      thumbnails: json['thumbnails'],
+      localimage: json['localimage'],
+      localaudio: json['localaudio'],
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> videoJson = super.toJson();
+    final videoJson = super.toJson();
     videoJson.addAll({
-      "localimage": localimage,
-      "localaudio": localaudio,
+      'localimage': localimage,
+      'localaudio': localaudio,
     });
     return videoJson;
   }
