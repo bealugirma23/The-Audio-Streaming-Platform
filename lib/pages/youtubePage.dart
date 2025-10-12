@@ -175,27 +175,27 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                           const SizedBox(width: 12),
                           // const RecentlyPlayedCard(),
                           // const SizedBox(width: 12),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: SizedBox(
-                                // width: 48, // control size here
-                                height: 48,
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    shape: const CircleBorder(),
-                                    padding: EdgeInsets
-                                        .zero, // ensures it's perfectly round
-                                  ),
-                                  child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.add, size: 24)),
-                                ),
-                              ),
-                            ),
-                          )
+                          // Container(
+                          //   margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(16),
+                          //     child: SizedBox(
+                          //       // width: 48, // control size here
+                          //       height: 48,
+                          //       child: ElevatedButton(
+                          //         onPressed: () {},
+                          //         style: ElevatedButton.styleFrom(
+                          //           shape: const CircleBorder(),
+                          //           padding: EdgeInsets
+                          //               .zero, // ensures it's perfectly round
+                          //         ),
+                          //         child: IconButton(
+                          //             onPressed: () {},
+                          //             icon: Icon(Icons.add, size: 24)),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // )
                         ],
                       ),
                     ),

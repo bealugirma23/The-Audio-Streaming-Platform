@@ -2,13 +2,13 @@ import 'package:audiobinge/utils/favoriteUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import '../components/videoComponent.dart';
+import '../../components/videoComponent.dart';
 import 'package:shimmer/shimmer.dart';
-import '../main.dart';
+import '../../main.dart';
 import 'package:provider/provider.dart';
-import '../provider/connectivityProvider.dart';
-import '../models/MyVideo.dart';
-import '../services/player.dart';
+import '../../provider/connectivityProvider.dart';
+import '../../models/MyVideo.dart';
+import '../../services/player.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -109,29 +109,49 @@ class _FavoriteScreenState extends State<FavoriteScreen>
                   //   ],
                   // ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       if (_videos.isNotEmpty) SizedBox(width: 8),
-                      if (_videos.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: () => playing.setQueue(_videos),
-                          style: ElevatedButton.styleFrom(
-                            // backgroundColor: AppColors.primaryColor,
-                            // foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      // if (_videos.isNotEmpty)
+                      //   ElevatedButton.icon(
+                      //     onPressed: () => playing.setQueue(_videos),
+                      //     style: ElevatedButton.styleFrom(
+                      //       // backgroundColor: AppColors.primaryColor,
+                      //       // foregroundColor: Colors.white,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //       padding: EdgeInsets.symmetric(
+                      //           horizontal: 12, vertical: 8),
+                      //     ),
+                      //     icon: Icon(Icons.play_arrow, size: 16),
+                      //     label: Text(
+                      //       'Play All',
+                      //       style: TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 13,
+                      //       ),
+                      //     ),
+                      //   ),
+                      SizedBox(
+                        height: 48,
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: EdgeInsets
+                                    .zero, // ensures it's perfectly round
+                              ),
+                              child: IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.add, size: 24)),
                             ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          icon: Icon(Icons.play_arrow, size: 16),
-                          label: Text(
-                            'Play All',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
+                            Text("Create Playlist")
+                          ],
                         ),
+                      )
                     ],
                   ),
                 ],
@@ -153,6 +173,10 @@ class _FavoriteScreenState extends State<FavoriteScreen>
           ],
         ),
       ),
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.only(bottom: 200),
+      //   child: OutlinedButton(onPressed: () {}, child: Icon(Icons.add)),
+      // ),
     );
   }
 
@@ -194,7 +218,7 @@ class _FavoriteScreenState extends State<FavoriteScreen>
             ),
             SizedBox(height: 16),
             Text(
-              'No favorites yet',
+              'No Playlists yet',
               style: GoogleFonts.roboto(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -203,7 +227,7 @@ class _FavoriteScreenState extends State<FavoriteScreen>
             ),
             SizedBox(height: 8),
             Text(
-              'Your favorite tracks will appear here',
+              'You can add playlists to appear here',
               style: TextStyle(color: Colors.grey[600]),
             ),
             SizedBox(height: 24),

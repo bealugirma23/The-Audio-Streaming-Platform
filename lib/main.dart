@@ -11,7 +11,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/youtubePage.dart';
-import 'pages/favoritePage.dart';
+import 'pages/playlist/playlistPage.dart';
 import 'components/bottomPlayer.dart';
 import 'services/youtubeAudioStream.dart';
 import 'provider/connectivityProvider.dart';
@@ -138,8 +138,8 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
                   label: 'Search',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite_sharp),
-                  label: 'Favorites',
+                  icon: Icon(Icons.my_library_music),
+                  label: 'Playlists',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.download_for_offline_rounded),

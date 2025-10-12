@@ -38,6 +38,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: EdgeInsetsGeometry.fromLTRB(0, 0, 16, 0),
+          child: OutlinedButton(
+            onPressed: () {},
+            child: Icon(
+              Icons.add,
+              // color: Colors.white,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsetsGeometry.fromLTRB(0, 0, 16, 0),
           child: InkWell(
               onTap: () {
                 Navigator.of(context).push(
