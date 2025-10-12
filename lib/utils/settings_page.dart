@@ -1,9 +1,8 @@
-import 'package:audiobinge/theme/colors.dart';
+import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/utils/settings/themes_page.dart';
 import 'package:audiobinge/utils/settings/user_interests_page.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -13,13 +12,13 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _darkModeEnabled = true;
   bool _autoPlayEnabled = false;
   double _audioQuality = 2;
 // get current theme
 //
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeModeState>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -98,15 +97,14 @@ class _SettingPageState extends State<SettingPage> {
                   MaterialPageRoute(builder: (context) => const ThemesPage()));
             },
           ),
+
           _buildSwitchTile(
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
             subtitle: 'Use dark theme',
-            value: _darkModeEnabled,
+            value: isDarkMode.isDark,
             onChanged: (value) {
-              setState(() {
-                _darkModeEnabled = value;
-              });
+              isDarkMode.changeTheme(!value);
             },
           ),
           // _buildSettingTile(
@@ -245,15 +243,14 @@ class _SettingPageState extends State<SettingPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
+          color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon,  size: 24),
+        child: Icon(icon, size: 24),
       ),
       title: Text(
         title,
         style: const TextStyle(
-        
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),

@@ -1,4 +1,5 @@
-import 'package:audiobinge/theme/theme.dart';
+import 'package:audiobinge/theme/colors.dart';
+import 'package:audiobinge/theme/isDark.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,50 +13,61 @@ enum AppTheme {
   lightGreen,
 }
 
-class ThemeState {
-  final AppTheme theme;
+class ThemeService extends ChangeNotifier {
+  final ThemeModeState themeModeState;
+  late AppTheme _currentTheme;
 
-  ThemeState({required this.theme});
-}
-
-class ThemeService {
-  static Future<void> setTheme({required AppTheme appTheme}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('theme', appTheme.name);
-  }
-
-  static Future<AppTheme> getTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? themeString = prefs.getString('theme');
-
-    try {
-      return AppTheme.values.firstWhere(
-        (e) => e.name == themeString,
-        orElse: () => AppTheme.darkGreen,
-      );
-    } catch (e) {
-      return AppTheme.darkGreen;
+  ThemeService(this.themeModeState) {
+    {
+      _currentTheme =
+          themeModeState.isDark ? AppTheme.darkYellow : AppTheme.lightYellow;
     }
   }
 
-  // static ThemeData buildTheme(ThemeState state) {
-  //   switch (state.appTheme) {
-  //     case AppTheme.darkGreen:
-  //       return darkGreenTheme;
-  //     case AppTheme.lightGreen:
-  //       return lightGreenTheme;
-  //     case AppTheme.darkBlue:
-  //       return darkBlueTheme;
-  //     case AppTheme.lightBlue:
-  //       return lightBlueTheme;
-  //     case AppTheme.darkPink:
-  //       return darkPinkTheme;
-  //     case AppTheme.lightPink:
-  //       return lightPinkTheme;
-  //     case AppTheme.darkPurple:
-  //       return darkPurpleTheme;
-  //     case AppTheme.lightPurple:
-  //       return lightPurpleTheme;
-  //   }
-  // }
+  AppTheme get currentTheme => _currentTheme;
+
+  Future<void> setTheme(AppTheme theme) async {
+    _currentTheme = theme;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme', theme.name);
+    notifyListeners();
+  }
+
+  Future<void> loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final themeString = prefs.getString('theme');
+    _currentTheme = AppTheme.values.firstWhere(
+      (e) => e.name == themeString,
+      orElse: () => AppTheme.darkGreen,
+    );
+    notifyListeners();
+  }
+
+  ThemeData get themeData {
+    if (themeModeState.isDark) {
+      switch (_currentTheme) {
+        case AppTheme.darkGreen:
+          return darkGreenTheme;
+        case AppTheme.darkRed:
+          return darkRedTheme;
+        case AppTheme.darkYellow:
+          return darkYellowTheme;
+        default:
+          return darkYellowTheme;
+      }
+    } else {
+      switch (_currentTheme) {
+        case AppTheme.lightGreen:
+          return lightGreenTheme;
+        case AppTheme.lightRed:
+          return lightRedTheme;
+        case AppTheme.lightYellow:
+          return lightYellowTheme;
+        default:
+          return lightYellowTheme;
+      }
+    }
+  }
 }
+
+// final themeProvider = ChangeNotifierProvider(create: (_) => ThemeService());

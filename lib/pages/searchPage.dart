@@ -10,7 +10,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../provider/connectivityProvider.dart';
 import '../models/MyVideo.dart';
-import '../theme/colors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

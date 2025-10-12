@@ -2,7 +2,6 @@ import 'package:audiobinge/models/MyVideo.dart';
 import 'package:audiobinge/components/bottomPlayer.dart';
 import 'package:audiobinge/pages/downloadsPage.dart';
 import 'package:audiobinge/pages/favoritePage.dart';
-import 'package:audiobinge/main.dart';
 import 'package:audiobinge/utils/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

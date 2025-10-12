@@ -1,15 +1,16 @@
 import 'dart:async';
-import 'package:audiobinge/main.dart';
 import 'package:audiobinge/services/player.dart';
 import 'package:audiobinge/theme/colors.dart';
+import 'package:audiobinge/theme/isDark.dart';
+import 'package:audiobinge/theme/theme.dart';
 import 'package:audiobinge/utils/user_keyword_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:riverpod/riverpod.dart' hide Provider;
 import 'package:youtube_scrape_api/models/thumbnail.dart';
 import 'package:youtube_scrape_api/models/video_data.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 import 'package:flutter/material.dart';
-import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'models/MyVideo.dart';
 
@@ -80,10 +81,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeService>(context);
+    final isDarkMode = Provider.of<ThemeModeState>(context);
     return MaterialApp(
       title: 'Audifier',
       debugShowCheckedModeBanner: false,
-      theme: lightRedTheme,
+      theme: theme.themeData,
+      themeMode: isDarkMode.isDark ? ThemeMode.dark : ThemeMode.light,
       home: UserKeywordScreen(),
     );
   }

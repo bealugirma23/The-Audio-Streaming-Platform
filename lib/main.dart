@@ -4,6 +4,8 @@ import 'package:audiobinge/pages/downloadsPage.dart';
 import 'package:audiobinge/pages/searchPage.dart';
 import 'package:audiobinge/services/donwloadService.dart';
 import 'package:audiobinge/services/player.dart';
+import 'package:audiobinge/theme/isDark.dart';
+import 'package:audiobinge/theme/theme.dart';
 import 'package:audiobinge/utils/custom_appbar.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter/material.dart';
@@ -13,17 +15,23 @@ import 'pages/favoritePage.dart';
 import 'components/bottomPlayer.dart';
 import 'services/youtubeAudioStream.dart';
 import 'provider/connectivityProvider.dart';
-import 'theme/colors.dart';
-import 'components/videoComponent.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final themeState = ThemeModeState();
+  await themeState.getTheme();
+
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
   runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ThemeModeState()),
+    ChangeNotifierProxyProvider<ThemeModeState, ThemeService>(
+      create: (_) => ThemeService(ThemeModeState()), // dummy init
+      update: (_, themeMode, previous) => ThemeService(themeMode),
+    ),
     ChangeNotifierProvider(create: (_) => LikeNotifier()),
     ChangeNotifierProvider(create: (_) => Playing()),
     ChangeNotifierProvider(create: (_) => NetworkProvider()),

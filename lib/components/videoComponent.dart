@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/player.dart';
 import '../utils/downloadUtils.dart';
-import '../main.dart'; // Replace with the actual path
+// Replace with the actual path
 import '../utils/favoriteUtils.dart';
 import '../provider/connectivityProvider.dart';
 import '../models/MyVideo.dart';
-import '../theme/colors.dart';
 
 enum FromWhere { HOME, SEARCH }
 

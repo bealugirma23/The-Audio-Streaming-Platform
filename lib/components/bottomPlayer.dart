@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:audiobinge/provider/connectivityProvider.dart';
 import 'package:flutter/material.dart';
 import '../services/youtubeAudioStream.dart';
-import '../main.dart';
 import 'package:provider/provider.dart';
 
 import '../services/player.dart';

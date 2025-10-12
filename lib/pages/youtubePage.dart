@@ -1,9 +1,6 @@
 // File: lib/youtubePage.dart
 import 'package:audiobinge/components/widgets/cards.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:youtube_scrape_api/models/video.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 import '../components/videoComponent.dart';
 import '../utils/thumbnailUtils.dart';
@@ -11,7 +8,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../provider/connectivityProvider.dart';
 import '../models/MyVideo.dart';
-import '../theme/colors.dart';
 
 class YoutubeScreen extends StatefulWidget {
   const YoutubeScreen({super.key});

@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../provider/connectivityProvider.dart';
 import '../models/MyVideo.dart';
 import '../services/player.dart';
-import '../theme/colors.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});

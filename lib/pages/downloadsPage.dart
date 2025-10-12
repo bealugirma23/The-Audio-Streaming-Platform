@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../services/player.dart';
 import '../utils/downloadUtils.dart';
 import '../models/MyVideo.dart';
-import '../theme/colors.dart';
 
 class DownloadScreen extends StatefulWidget {
   const DownloadScreen({super.key});
