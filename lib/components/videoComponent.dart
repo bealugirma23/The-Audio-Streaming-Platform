@@ -120,10 +120,19 @@ class _VideoComponentState extends State<VideoComponent> {
                                         height: 80,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            'assets/icon.png',
+                                            height: 80,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
                                       )
                                     : Image.asset(
                                         'assets/icon.png',
-                                        height: 100,
+                                        height: 80,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                       ),
