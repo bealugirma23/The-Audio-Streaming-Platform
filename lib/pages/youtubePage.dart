@@ -21,7 +21,9 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   List<MyVideo> _podcastVideos = [];
   List<MyVideo> _musicVideos = [];
   List<MyVideo> _newsVideos = [];
+  List<MyVideo> _audiobookVideos = [];
   bool _isLoadingPodcasts = false;
+  bool _isLoadingAudiobooks = false;
   bool _isLoadingMusic = false;
   bool _isLoadingNews = false;
 
@@ -29,8 +31,20 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   void initState() {
     super.initState();
     fetchTrendingPodcasts();
+    fetchTrendingAudiBooks();
     fetchTrendingMusic();
     fetchTrendingNews();
+  }
+
+  Future<void> fetchTrendingAudiBooks() async {
+    setState(() => _isLoadingAudiobooks = true);
+    YoutubeDataApi api = YoutubeDataApi();
+    final videos = await api.fetchSearchVideo("audiobooks");
+    final processed = videos.map((v) => processVideoThumbnails(v)).toList();
+    setState(() {
+      _audiobookVideos = processed;
+      _isLoadingAudiobooks = false;
+    });
   }
 
   Future<void> fetchTrendingPodcasts() async {
@@ -207,6 +221,12 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       isLoading: _isLoadingPodcasts,
                       videos: _podcastVideos,
                       onRefresh: fetchTrendingPodcasts,
+                    ),
+                    _buildTrendingSection(
+                      title: "Audio Books",
+                      isLoading: _isLoadingAudiobooks,
+                      videos: _audiobookVideos,
+                      onRefresh: fetchTrendingAudiBooks,
                     ),
                     _buildTrendingSection(
                       title: "Trending Musics",

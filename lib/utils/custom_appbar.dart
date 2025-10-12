@@ -1,4 +1,5 @@
 // Extracted Custom AppBar
+import 'package:audiobinge/pages/add_playlist.dart';
 import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/utils/settings_page.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: EdgeInsetsGeometry.fromLTRB(0, 0, 16, 0),
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => AddPlayListScreen()));
+            },
             child: Icon(
               Icons.add,
               // color: Colors.white,
