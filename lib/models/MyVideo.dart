@@ -1,4 +1,6 @@
+import 'package:youtube_scrape_api/models/thumbnail.dart';
 import 'package:youtube_scrape_api/models/video.dart';
+
 class MyVideo extends Video {
   final String? localimage;
   final String? localaudio;
@@ -45,7 +47,9 @@ class MyVideo extends Video {
       channelName: json['channelName'],
       views: json['views'],
       uploadDate: json['uploadDate'],
-      thumbnails: json['thumbnails'],
+      thumbnails: (json['thumbnails'] as List<dynamic>? ?? [])
+          .map((t) => Thumbnail(url: t['url'], height: t['height'], width: t['width']))
+          .toList(),
       localimage: json['localimage'],
       localaudio: json['localaudio'],
     );
@@ -53,12 +57,19 @@ class MyVideo extends Video {
 
   @override
   Map<String, dynamic> toJson() {
-    final videoJson = super.toJson();
-    videoJson.addAll({
+    return {
+      'videoId': videoId,
+      'duration': duration,
+      'title': title,
+      'channelName': channelName,
+      'views': views,
+      'uploadDate': uploadDate,
+      'thumbnails': thumbnails
+          ?.map((t) => {'url': t.url, 'height': t.height, 'width': t.width})
+          .toList(),
       'localimage': localimage,
       'localaudio': localaudio,
-    });
-    return videoJson;
+    };
   }
 }
 

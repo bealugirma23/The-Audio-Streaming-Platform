@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:audiobinge/models/MyVideo.dart';
 import 'package:audiobinge/pages/channelVideosPage.dart';
-import 'package:audiobinge/utils/favoriteUtils.dart';
+import 'package:audiobinge/utils/likedPlaylistUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
@@ -19,16 +19,16 @@ class LikeNotifier extends ChangeNotifier {
 
   void setVideo(MyVideo video) async {
     _currentVideo = video;
-    _isLiked = await isFavorites(video);
+    _isLiked = await isLikedVideo(video);
     notifyListeners();
   }
 
   void toggleLike() {
     _isLiked = !_isLiked;
     if (_isLiked) {
-      saveToFavorites(_currentVideo!);
+      addToLikedPlaylist(_currentVideo!);
     } else {
-      removeFavorites(_currentVideo!);
+      removeFromLikedPlaylist(_currentVideo!);
     }
     notifyListeners();
   }

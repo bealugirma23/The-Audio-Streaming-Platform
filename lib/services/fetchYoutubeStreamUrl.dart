@@ -5,50 +5,70 @@ import 'package:youtube_scrape_api/youtube_scrape_api.dart' as scraper;
 import '../pages/channelVideosPage.dart';
 
 Future<String> fetchYoutubeStreamUrl(String id) async {
-  final yt = YoutubeExplode();
-  final manifest = await yt.videos.streams.getManifest(id,
-      // You can also pass a list of preferred clients, otherwise the library will handle it:
-      ytClients: [
-        YoutubeApiClient.androidVr,
-      ]);
+  try {
+    final yt = YoutubeExplode();
+    final manifest = await yt.videos.streams.getManifest(id,
+        // You can also pass a list of preferred clients, otherwise the library will handle it:
+        ytClients: [
+          YoutubeApiClient.androidVr,
+        ]);
 
-  // Print all the available streams.
-  print('fetched url');
-  final audio = manifest.audioOnly.withHighestBitrate();
-  yt.close();
-  return audio.url.toString();
+    // Print all the available streams.
+    print('fetched url');
+    final audio = manifest.audioOnly.withHighestBitrate();
+    
+    String url = audio.url.toString();
+    yt.close();
+    return url;
+  } catch (e) {
+    print('Error fetching YouTube stream URL: $e');
+    rethrow; // Rethrow the exception to be handled by the caller
+  }
 }
 
 Future<Stream<List<int>>> fetchAcutalStream(String id) async {
-  final yt = YoutubeExplode();
-  final manifest = await yt.videos.streams.getManifest(id,
-      // You can also pass a list of preferred clients, otherwise the library will handle it:
-      ytClients: [
-        YoutubeApiClient.androidVr,
-      ]);
+  try {
+    final yt = YoutubeExplode();
+    final manifest = await yt.videos.streams.getManifest(id,
+        // You can also pass a list of preferred clients, otherwise the library will handle it:
+        ytClients: [
+          YoutubeApiClient.androidVr,
+        ]);
 
-  // Print all the available streams.
-  print('fetched url');
-  final audio = manifest.audioOnly.withHighestBitrate();
-  var stream = yt.videos.streams.get(audio);
-  yt.close();
-  return stream;
+    // Print all the available streams.
+    print('fetched url');
+    final audio = manifest.audioOnly.withHighestBitrate();
+    
+    var stream = yt.videos.streams.get(audio);
+    yt.close();
+    return stream;
+  } catch (e) {
+    print('Error fetching actual stream: $e');
+    rethrow;
+  }
 }
 
 Future<List<ClosedCaption>> fetchYoutubeClosedCaptions(String id) async {
-  var yt = YoutubeExplode();
+  try {
+    var yt = YoutubeExplode();
 
-  var trackManifest = await yt.videos.closedCaptions.getManifest(id);
+    var trackManifest = await yt.videos.closedCaptions.getManifest(id);
 
-  var trackInfo = trackManifest.getByLanguage('en'); // Get english caption.
+    var trackInfo = trackManifest.getByLanguage('en'); // Get english caption.
 
-  // Get the actual closed caption track.
-  if (trackInfo.isNotEmpty) {
-    var track = await yt.videos.closedCaptions.get(trackInfo.first);
-    var captions = track.captions;
-    return captions;
+    // Get the actual closed caption track.
+    if (trackInfo.isNotEmpty) {
+      var track = await yt.videos.closedCaptions.get(trackInfo.first);
+      var captions = track.captions;
+      yt.close();
+      return captions;
+    }
+    yt.close();
+    return [];
+  } catch (e) {
+    print('Error fetching closed captions: $e');
+    return [];
   }
-  return [];
 }
 
 String getCaptionAtTime(List<ClosedCaption> captions, Duration time) {

@@ -65,7 +65,9 @@ class _ThemesPageState extends State<ThemesPage> {
         itemCount: appThemes.length,
         itemBuilder: (context, index) {
           final itemAppTheme = appThemes[index];
-          final name = themeNameMap[itemAppTheme]!;
+          final name = Provider.of<ThemeModeState>(context).isDark
+              ? themeNameMap[itemAppTheme]!
+              : themeNameDarkMap[itemAppTheme]!;
           final isTheme = theme.currentTheme == itemAppTheme;
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),

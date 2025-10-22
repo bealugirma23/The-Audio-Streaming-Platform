@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/player.dart';
 import '../utils/downloadUtils.dart';
 // Replace with the actual path
-import '../utils/favoriteUtils.dart';
+import '../utils/likedPlaylistUtils.dart';
 import '../provider/connectivityProvider.dart';
 import '../models/MyVideo.dart';
 
@@ -31,7 +31,7 @@ class _VideoComponentState extends State<VideoComponent> {
   void initState() {
     super.initState();
     _future = Future.wait([
-      isFavorites(widget.video),
+      isLikedVideo(widget.video),
       isDownloaded(widget.video),
     ]);
   }
@@ -174,30 +174,28 @@ class _VideoComponentState extends State<VideoComponent> {
                                       );
                                     }
                                     break;
-                                  case 'add_to_favorites':
-                                    saveToFavorites(widget.video);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Added to favorites'),
-                                        // backgroundColor: Colors.white,
-                                        elevation: 10,
-                                        behavior: SnackBarBehavior.floating,
-                                        margin: EdgeInsets.all(5),
-                                      ),
-                                    );
-                                    break;
-                                  case 'remove_from_favorites':
-                                    removeFavorites(widget.video);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Removed from favorites'),
-                                        backgroundColor: Colors.white,
-                                        elevation: 10,
-                                        behavior: SnackBarBehavior.floating,
-                                        margin: EdgeInsets.all(5),
-                                      ),
-                                    );
-                                    break;
+                                case 'add_to_liked':
+                                  addToLikedPlaylist(widget.video);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Added to Liked Songs'),
+                                      elevation: 10,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(5),
+                                    ),
+                                  );
+                                  break;
+                                case 'remove_from_liked':
+                                  removeFromLikedPlaylist(widget.video);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Removed from Liked Songs'),
+                                      elevation: 10,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(5),
+                                    ),
+                                  );
+                                  break;
                                   case 'add_to_downloads':
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
@@ -232,12 +230,12 @@ class _VideoComponentState extends State<VideoComponent> {
                                   ),
                                   isLiked
                                       ? PopupMenuItem<String>(
-                                          value: 'remove_from_favorites',
-                                          child: Text('Remove from favorites'),
+                                          value: 'remove_from_liked',
+                                          child: Text('Remove from Liked Songs'),
                                         )
                                       : PopupMenuItem<String>(
-                                          value: 'add_to_favorites',
-                                          child: Text('Add to favorites'),
+                                          value: 'add_to_liked',
+                                          child: Text('Add to Liked Songs'),
                                         ),
                                   isDownloaded
                                       ? PopupMenuItem<String>(

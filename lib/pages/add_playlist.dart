@@ -1,9 +1,6 @@
-import 'package:audiobinge/models/MyVideo.dart';
-import 'package:audiobinge/models/PlayList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstore/localstore.dart';
-import 'package:youtube_scrape_api/models/video.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 
 class AddPlayListScreen extends StatefulWidget {
@@ -15,7 +12,7 @@ class AddPlayListScreen extends StatefulWidget {
 
 class _AddPlayListScreenState extends State<AddPlayListScreen> {
   final TextEditingController _linkController = TextEditingController();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool hasError = false;
   String error = '';
   bool successModal = false;

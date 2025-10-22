@@ -1,5 +1,4 @@
 import 'package:audiobinge/models/MyVideo.dart';
-import 'package:audiobinge/utils/favoriteUtils.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:audiobinge/utils/downloadUtils.dart';
@@ -145,30 +144,37 @@ class Playing with ChangeNotifier {
     await pause();
     notifyListeners();
 
-    if (clear) {
-      // Clear and replace the queue if `clear` is true
-      _queue.clear();
-      AudioSource audioSource = await createAudioSource(v);
-      _queue.add(v);
-      _playlist = ConcatenatingAudioSource(children: [audioSource]);
-      await _audioPlayer.setAudioSource(_playlist);
-    } else {
-      // Play from existing playlist
-      int index = _queue.indexWhere((video) => video.videoId == v.videoId);
-      if (index != -1) {
-        await _audioPlayer.seek(Duration.zero, index: index);
+    try {
+      if (clear) {
+        // Clear and replace the queue if `clear` is true
+        _queue.clear();
+        AudioSource audioSource = await createAudioSource(v);
+        _queue.add(v);
+        _playlist = ConcatenatingAudioSource(children: [audioSource]);
+        await _audioPlayer.setAudioSource(_playlist);
       } else {
-        print("Video not found in the playlist.");
-        return;
+        // Play from existing playlist
+        int index = _queue.indexWhere((video) => video.videoId == v.videoId);
+        if (index != -1) {
+          await _audioPlayer.seek(Duration.zero, index: index);
+        } else {
+          print("Video not found in the playlist.");
+          return;
+        }
       }
+
+      _video = v;
+      resetPosition();
+
+      _isloading = false;
+      notifyListeners();
+      await play();
+    } catch (e) {
+      print('Error in assign: $e');
+      _isloading = false;
+      notifyListeners();
+      rethrow;
     }
-
-    _video = v;
-    resetPosition();
-
-    _isloading = false;
-    notifyListeners();
-    await play();
   }
 
   Future<void> addToQueue(MyVideo v) async {
@@ -181,8 +187,14 @@ class Playing with ChangeNotifier {
 
     _queue.add(v); // Add video to the queue
 
-    AudioSource audioSource = await createAudioSource(v);
-    await _playlist.add(audioSource); // Add audio source to the playlist
+    try {
+      AudioSource audioSource = await createAudioSource(v);
+      await _playlist.add(audioSource); // Add audio source to the playlist
+    } catch (e) {
+      print('Error adding to queue: $e');
+      _queue.removeLast(); // Remove the video if adding to playlist failed
+      rethrow;
+    }
     notifyListeners();
   }
 
@@ -331,29 +343,39 @@ class Playing with ChangeNotifier {
 
   Future<AudioSource> createAudioSource(MyVideo v) async {
     print("width");
-    print(v.thumbnails?.first.width);
-    print(v.thumbnails?.first.height);
+    if (v.thumbnails != null && v.thumbnails!.isNotEmpty) {
+      print(v.thumbnails?.first.width);
+      print(v.thumbnails?.first.height);
+    } else {
+      print("No thumbnails available");
+    }
+    
     var local = await isDownloaded(v);
     if (local) {
       v = (await getVideoById(v))!;
+      // Ensure all required fields are available before creating audio source
+      if (v.localaudio == null || v.videoId == null || v.title == null || v.channelName == null) {
+        throw Exception("Required fields are missing for local audio playback");
+      }
+      
       return AudioSource.uri(
         Uri.file(v.localaudio!),
         tag: MediaItem(
           id: v.videoId!,
           album: v.channelName,
           title: v.title!,
-          artUri: v.thumbnails != null && v.thumbnails!.isNotEmpty
+          artUri: (v.localimage != null && v.thumbnails != null && v.thumbnails!.isNotEmpty)
               ? Uri.file(v.localimage!)
               : null,
         ),
       );
     } else {
-      var url = "hello";
-      if (await isFavorites(v)) {
-        url = v.localaudio!;
-      } else {
-        url = await fetchYoutubeStreamUrl(v.videoId!);
+      // Check required fields before fetching stream URL
+      if (v.videoId == null) {
+        throw Exception("Video ID is missing for fetching stream URL");
       }
+      
+      var url = await fetchYoutubeStreamUrl(v.videoId!);
       print('------------------------');
       print(v.videoId);
       print(v.channelName);
@@ -366,7 +388,7 @@ class Playing with ChangeNotifier {
           id: v.videoId!,
           album: v.channelName,
           title: v.title!,
-          artUri: v.thumbnails != null && v.thumbnails!.isNotEmpty
+          artUri: v.thumbnails != null && v.thumbnails!.isNotEmpty && v.thumbnails![0].url != null
               ? Uri.parse(v.thumbnails![0].url!)
               : null,
         ),
@@ -380,6 +402,5 @@ class Playing with ChangeNotifier {
     super.dispose();
   }
 }
-
 
 

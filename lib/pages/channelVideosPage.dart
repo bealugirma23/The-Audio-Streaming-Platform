@@ -1,7 +1,7 @@
 import 'package:audiobinge/models/MyVideo.dart';
 import 'package:audiobinge/components/bottomPlayer.dart';
 import 'package:audiobinge/pages/downloadsPage.dart';
-import 'package:audiobinge/pages/playlist/playlistPage.dart';
+import 'package:audiobinge/pages/playlist/playlists_page.dart';
 import 'package:audiobinge/utils/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +29,7 @@ class _ChannelVideosPageState extends State<ChannelVideosPage> {
   bool _isLoading = true; // Loading state
   int _selectedIndex = 0;
   List<Widget> get _pages =>
-      [channelVideoScreen(), FavoriteScreen(), DownloadScreen()];
+      [channelVideoScreen(), PlaylistsScreen(), DownloadScreen()];
 
   @override
   void initState() {

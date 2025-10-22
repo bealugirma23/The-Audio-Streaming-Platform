@@ -1,5 +1,7 @@
 // File: lib/youtubePage.dart
-import 'package:audiobinge/components/widgets/cards.dart';
+import 'package:audiobinge/models/PlayList.dart';
+import 'package:audiobinge/utils/likedPlaylistUtils.dart';
+import 'package:audiobinge/components/playlistComponent.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 import '../components/videoComponent.dart';
@@ -22,18 +24,30 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   List<MyVideo> _musicVideos = [];
   List<MyVideo> _newsVideos = [];
   List<MyVideo> _audiobookVideos = [];
+  MyPlayList? _likedPlaylist;
   bool _isLoadingPodcasts = false;
   bool _isLoadingAudiobooks = false;
   bool _isLoadingMusic = false;
   bool _isLoadingNews = false;
+  bool _isLoadingLikedPlaylist = false;
 
   @override
   void initState() {
     super.initState();
+    fetchLikedPlaylist();
     fetchTrendingPodcasts();
     fetchTrendingAudiBooks();
     fetchTrendingMusic();
     fetchTrendingNews();
+  }
+
+  Future<void> fetchLikedPlaylist() async {
+    setState(() => _isLoadingLikedPlaylist = true);
+    final likedPlaylist = await getLikedPlaylist();
+    setState(() {
+      _likedPlaylist = likedPlaylist;
+      _isLoadingLikedPlaylist = false;
+    });
   }
 
   Future<void> fetchTrendingAudiBooks() async {
@@ -110,8 +124,8 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
             itemBuilder: (context, index) {
               if (isLoading) {
                 return Shimmer.fromColors(
-                  baseColor: Colors.grey[800]!,
-                  highlightColor: Colors.grey[700]!,
+                  baseColor: Colors.grey[500]!,
+                  highlightColor: Colors.grey[400]!,
                   child: Container(
                     width: 180,
                     margin: const EdgeInsets.only(right: 12),
@@ -183,40 +197,32 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          const RecentlyPlayedCard(
-                            title: 'Liked Playlist',
-                            length: '0 Videos',
-                          ),
+                          _isLoadingLikedPlaylist
+                              ? Shimmer.fromColors(
+                                  baseColor: Colors.grey[800]!,
+                                  highlightColor: Colors.grey[700]!,
+                                  child: Container(
+                                    width: 180,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[800],
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
+                                )
+                              : _likedPlaylist != null
+                                  ? PlaylistComponent(
+                                      playlist: _likedPlaylist!,
+                                    )
+                                  : Container(),
                           const SizedBox(width: 12),
-                          // const RecentlyPlayedCard(),
-                          // const SizedBox(width: 12),
-                          // Container(
-                          //   margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
-                          //   child: Padding(
-                          //     padding: const EdgeInsets.all(16),
-                          //     child: SizedBox(
-                          //       // width: 48, // control size here
-                          //       height: 48,
-                          //       child: ElevatedButton(
-                          //         onPressed: () {},
-                          //         style: ElevatedButton.styleFrom(
-                          //           shape: const CircleBorder(),
-                          //           padding: EdgeInsets
-                          //               .zero, // ensures it's perfectly round
-                          //         ),
-                          //         child: IconButton(
-                          //             onPressed: () {},
-                          //             icon: Icon(Icons.add, size: 24)),
-                          //       ),
-                          //     ),
-                          //   ),
-                          // )
                         ],
                       ),
                     ),
                     // const SizedBox(height: 24),
 
                     // Trending sections
+
                     _buildTrendingSection(
                       title: "Trending Podcasts",
                       isLoading: _isLoadingPodcasts,
@@ -224,17 +230,18 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       onRefresh: fetchTrendingPodcasts,
                     ),
                     _buildTrendingSection(
+                      title: "Channels",
+                      isLoading: _isLoadingMusic,
+                      videos: _musicVideos,
+                      onRefresh: fetchTrendingMusic,
+                    ),
+                    _buildTrendingSection(
                       title: "Audio Books",
                       isLoading: _isLoadingAudiobooks,
                       videos: _audiobookVideos,
                       onRefresh: fetchTrendingAudiBooks,
                     ),
-                    _buildTrendingSection(
-                      title: "Trending Musics",
-                      isLoading: _isLoadingMusic,
-                      videos: _musicVideos,
-                      onRefresh: fetchTrendingMusic,
-                    ),
+
                     _buildTrendingSection(
                       title: "Recent News",
                       isLoading: _isLoadingNews,

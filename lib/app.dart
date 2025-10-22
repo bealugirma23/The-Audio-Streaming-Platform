@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'package:audiobinge/main.dart';
-import 'package:audiobinge/pages/youtubePage.dart';
 import 'package:audiobinge/services/player.dart';
-import 'package:audiobinge/theme/colors.dart';
 import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/theme/theme.dart';
-import 'package:audiobinge/utils/user_keyword_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:riverpod/riverpod.dart' hide Provider;
 import 'package:youtube_scrape_api/models/thumbnail.dart';
 import 'package:youtube_scrape_api/models/video_data.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';

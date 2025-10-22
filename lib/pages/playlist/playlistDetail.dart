@@ -1,7 +1,12 @@
+import '../../components/horizontal_video_component.dart';
+import '../../models/PlayList.dart';
+import '../../services/player.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PlayListDetail extends StatefulWidget {
-  const PlayListDetail({super.key});
+  final MyPlayList playlist;
+  const PlayListDetail({super.key, required this.playlist});
 
   @override
   State<PlayListDetail> createState() => _PlayListDetailState();
@@ -10,6 +15,7 @@ class PlayListDetail extends StatefulWidget {
 class _PlayListDetailState extends State<PlayListDetail> {
   @override
   Widget build(BuildContext context) {
+    final playing = Provider.of<Playing>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -23,23 +29,38 @@ class _PlayListDetailState extends State<PlayListDetail> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Column(
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
-                    child: Image(
-                      image: AssetImage('assets/icon.png'),
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
+                    child: widget.playlist.coverImage.isEmpty
+                        ? Image.asset(
+                            'assets/icon.png',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            widget.playlist.coverImage,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/icon.png',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Chill Vibes',
+                    widget.playlist.title,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -47,7 +68,7 @@ class _PlayListDetailState extends State<PlayListDetail> {
                     ),
                   ),
                   Text(
-                    '12 videos',
+                    '${widget.playlist.videos.length} videos',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16,
@@ -61,7 +82,9 @@ class _PlayListDetailState extends State<PlayListDetail> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  playing.setQueue(widget.playlist.videos);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   shape: const CircleBorder(),
@@ -72,7 +95,10 @@ class _PlayListDetailState extends State<PlayListDetail> {
               ),
               const SizedBox(width: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  playing.setQueue(widget.playlist.videos);
+                  playing.toggleShuffle();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[700],
                   shape: const CircleBorder(),
@@ -95,54 +121,16 @@ class _PlayListDetailState extends State<PlayListDetail> {
             ),
           ),
           Expanded(
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.all(16.0),
-              children: const [
-                ListTile(
-                  leading: Icon(Icons.music_note, color: Colors.white),
-                  title: Text('video Title 1',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle:
-                      Text('Artist 1', style: TextStyle(color: Colors.grey)),
-                  trailing: Icon(Icons.more_vert, color: Colors.grey),
-                ),
-                ListTile(
-                  leading: Icon(Icons.music_note, color: Colors.white),
-                  title: Text('video Title 2',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle:
-                      Text('Artist 2', style: TextStyle(color: Colors.grey)),
-                  trailing: Icon(Icons.more_vert, color: Colors.grey),
-                ),
-                ListTile(
-                  leading: Icon(Icons.music_note, color: Colors.white),
-                  title: Text('video Title 3',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle:
-                      Text('Artist 3', style: TextStyle(color: Colors.grey)),
-                  trailing: Icon(Icons.more_vert, color: Colors.grey),
-                ),
-                ListTile(
-                  leading: Icon(Icons.music_note, color: Colors.white),
-                  title: Text('video Title 4',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle:
-                      Text('Artist 4', style: TextStyle(color: Colors.grey)),
-                  trailing: Icon(Icons.more_vert, color: Colors.grey),
-                ),
-              ],
+              itemCount: widget.playlist.videos.length,
+              itemBuilder: (context, index) {
+                final video = widget.playlist.videos[index];
+                return HorizontalVideoComponent(
+                    video: video, from: FromWhere.HOME);
+              },
             ),
           ),
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: TextButton(
-          //     onPressed: () {},
-          //     child: const Text(
-          //       'Add videos',
-          //       style: TextStyle(color: Colors.red, fontSize: 16),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

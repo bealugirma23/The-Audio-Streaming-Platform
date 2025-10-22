@@ -104,7 +104,7 @@ class _SettingPageState extends State<SettingPage> {
             subtitle: 'Use dark theme',
             value: isDarkMode.isDark,
             onChanged: (value) {
-              isDarkMode.changeTheme(!value);
+              isDarkMode.changeTheme(value);
             },
           ),
           // _buildSettingTile(

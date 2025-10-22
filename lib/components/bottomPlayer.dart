@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audiobinge/provider/connectivityProvider.dart';
 import 'package:flutter/material.dart';
-import '../services/youtubeAudioStream.dart';
+import 'package:audiobinge/services/youtubeAudioStream.dart';
 import 'package:provider/provider.dart';
 
 import '../services/player.dart';
@@ -45,27 +45,34 @@ class _BottomPlayerState extends State<BottomPlayer> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          transitionDuration: const Duration(milliseconds: 250),
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  YoutubeAudioPlayer(videoId: 'fRh_vgS2dFE'),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            const begin = Offset(0.0, 1.0);
-                            const end = Offset.zero;
+                      onTap: () {
+                        // Check if videoId is available before navigating
+                        if (playing.video.videoId != null) {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(milliseconds: 250),
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      YoutubeAudioPlayer(videoId: playing.video.videoId!),
+                              transitionsBuilder:
+                                  (context, animation, secondaryAnimation, child) {
+                                const begin = Offset(0.0, 1.0);
+                                const end = Offset.zero;
 
-                            final tween = Tween(begin: begin, end: end);
-                            final offsetAnimation = animation.drive(tween);
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
-                            );
-                          },
-                        ),
-                      ),
+                                final tween = Tween(begin: begin, end: end);
+                                final offsetAnimation = animation.drive(tween);
+                                return SlideTransition(
+                                  position: offsetAnimation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        } else {
+                          print("Cannot navigate: video ID is null");
+                        }
+                      },
                       child: Row(
                         children: [
                           ClipRRect(
@@ -84,7 +91,9 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                         fit: BoxFit
                                             .cover, // Or BoxFit.fitWidth/fitHeight
                                       )
-                                    : (isOnline)
+                                    : (isOnline && playing.video.thumbnails != null && 
+                                        playing.video.thumbnails!.isNotEmpty && 
+                                        playing.video.thumbnails![0].url != null)
                                         ? Image.network(
                                             playing.video.thumbnails![0].url!,
                                             fit: BoxFit.cover,
@@ -104,7 +113,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
                               SizedBox(
                                 width: MediaQuery.of(context).size.width - 180,
                                 child: Text(
-                                  playing.video.title!,
+                                  playing.video.title ?? "Unknown Title",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
@@ -118,7 +127,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
                               SizedBox(
                                 width: MediaQuery.of(context).size.width - 180,
                                 child: Text(
-                                  playing.video.channelName!,
+                                  playing.video.channelName ?? "Unknown Channel",
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:audiobinge/app.dart';
 import 'package:audiobinge/pages/downloadsPage.dart';
@@ -11,7 +12,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/youtubePage.dart';
-import 'pages/playlist/playlistPage.dart';
+import 'pages/playlist/playlists_page.dart';
 import 'components/bottomPlayer.dart';
 import 'services/youtubeAudioStream.dart';
 import 'provider/connectivityProvider.dart';
@@ -25,19 +26,38 @@ void main() async {
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
-    // androidNotificationIcon: 'drawable/ic_notification'
+    // androidNotificationIcon: '@mipmap/launcher_icon');
   );
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => ThemeModeState()),
-    ChangeNotifierProxyProvider<ThemeModeState, ThemeService>(
-      create: (_) => ThemeService(ThemeModeState()), // dummy init
-      update: (_, themeMode, previous) => ThemeService(themeMode),
-    ),
-    ChangeNotifierProvider(create: (_) => LikeNotifier()),
-    ChangeNotifierProvider(create: (_) => Playing()),
-    ChangeNotifierProvider(create: (_) => NetworkProvider()),
-    Provider<DownloadService>(create: (context) => DownloadService()),
-  ], child: const MyApp()));
+  void _reportError(Object error, StackTrace? stack) {
+    // Example: print or send to Sentry, Firebase, or your own API
+    debugPrint('Caught error: $error');
+    debugPrint('Stack trace: $stack');
+  }
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+    // You can also send the error to your server or a crash logging service
+    _reportError(details.exception, details.stack);
+  };
+
+  runZonedGuarded(() {
+    runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: themeState),
+        ChangeNotifierProxyProvider<ThemeModeState, ThemeService>(
+          create: (_) => ThemeService(themeState), // dummy init
+          update: (_, themeMode, previous) => ThemeService(themeMode),
+        ),
+        ChangeNotifierProvider(create: (_) => LikeNotifier()),
+        ChangeNotifierProvider(create: (_) => Playing()),
+        ChangeNotifierProvider(create: (_) => NetworkProvider()),
+        Provider<DownloadService>(create: (context) => DownloadService()),
+      ],
+      child: MyApp(),
+    ));
+  }, (Object error, StackTrace stack) {
+    _reportError(error, stack);
+  });
 }
 
 class YouTubeTwitchTabs extends StatefulWidget {
@@ -52,7 +72,7 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
   final List<Widget> _pages = [
     YoutubeScreen(),
     SearchScreen(),
-    FavoriteScreen(),
+    PlaylistsScreen(),
     DownloadScreen()
   ];
 
@@ -91,7 +111,7 @@ class _YouTubeTwitchTabsState extends State<YouTubeTwitchTabs> {
             ),
 
             // BottomPlayer positioned above the bottom navigation
-            if (playing.video.title != null && playing.isPlayerVisible)
+            if (playing.video.videoId != null && playing.isPlayerVisible)
               Positioned(
                 left: 0,
                 right: 0,

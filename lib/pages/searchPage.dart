@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    fetchTrendingYoutube();
+    // fetchTrendingYoutube();
   }
 
   Future<void> _handleRefresh() async {
@@ -98,11 +98,11 @@ class _SearchScreenState extends State<SearchScreen> {
               children: [
                 TextField(
                   controller: _searchController,
+                  enableSuggestions: true,
+                  
                   decoration: InputDecoration(
                     hintText: 'Search...',
-                    hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
                     filled: true,
-                    fillColor: Colors.grey[900],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -114,7 +114,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       // borderSide:
-                          // BorderSide(color: AppColors.primaryColor, width: 1.5),
+                      // BorderSide(color: AppColors.primaryColor, width: 1.5),
                     ),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -123,7 +123,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: SvgPicture.asset(
                         'assets/icons/youtube.svg',
                         height: 24,
-                        color: Colors.white,
                       ),
                     ),
                     suffixIcon: _isSearching
@@ -134,7 +133,6 @@ class _SearchScreenState extends State<SearchScreen> {
                               padding: const EdgeInsets.all(13.0),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
                               ),
                             ),
                           )
@@ -146,8 +144,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 child: _searchController.text.isNotEmpty
                                     ? IconButton(
                                         key: ValueKey('clear'),
-                                        icon: Icon(Icons.clear,
-                                            color: Colors.white),
+                                        icon: Icon(
+                                          Icons.clear,
+                                        ),
                                         onPressed: () {
                                           _searchController.clear();
                                           setState(() {});
@@ -156,7 +155,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                     : SizedBox.shrink(),
                               ),
                               IconButton(
-                                icon: Icon(Icons.search, color: Colors.white),
+                                icon: Icon(
+                                  Icons.search,
+                                ),
                                 onPressed: () {
                                   searchYoutube(_searchController.text);
                                 },
@@ -211,8 +212,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       itemBuilder: (context, index) {
                         if (_isLoading) {
                           return Shimmer.fromColors(
-                            baseColor: Colors.grey[800]!,
-                            highlightColor: Colors.grey[700]!,
+                            baseColor: Colors.grey[500]!,
+                            highlightColor: Colors.grey[400]!,
                             child: Container(
                               height: 100,
                               margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
