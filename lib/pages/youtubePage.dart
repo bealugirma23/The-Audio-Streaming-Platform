@@ -1,4 +1,5 @@
 // File: lib/youtubePage.dart
+import 'dart:convert';
 import 'package:audiobinge/models/PlayList.dart';
 import 'package:audiobinge/utils/likedPlaylistUtils.dart';
 import 'package:audiobinge/components/playlistComponent.dart';
@@ -31,11 +32,27 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   bool _isLoadingMusic = false;
   bool _isLoadingNews = false;
   bool _isLoadingLikedPlaylist = false;
-  final cacheManager = DefaultCacheManager();
+  final cacheManager = CacheManager(
+    Config(
+      "youtube_cache",
+      stalePeriod: const Duration(hours: 1), // Cache expires after 1 hour
+      maxNrOfCacheObjects: 100,
+    ),
+  );
+
+  bool _isPodcastsLoaded = false;
+  bool _isAudiobooksLoaded = false;
+  bool _isMusicLoaded = false;
+  bool _isNewsLoaded = false;
+  bool _isLikedPlaylistLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
     fetchLikedPlaylist();
     fetchTrendingPodcasts();
     fetchTrendingAudiBooks();
@@ -44,57 +61,149 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   }
 
   Future<void> fetchLikedPlaylist() async {
+    if (_isLikedPlaylistLoaded) return; // Don't refetch if already loaded
+
     setState(() => _isLoadingLikedPlaylist = true);
     final likedPlaylist = await getLikedPlaylist();
     setState(() {
       _likedPlaylist = likedPlaylist;
       _isLoadingLikedPlaylist = false;
+      _isLikedPlaylistLoaded = true; // Mark as loaded
     });
   }
 
   Future<void> fetchTrendingAudiBooks() async {
-    setState(() => _isLoadingAudiobooks = true);
-    YoutubeDataApi api = YoutubeDataApi();
-    final videos = await api.fetchSearchVideo("audiobooks");
-   
-    final processed = videos.map((v) => processVideoThumbnails(v)).toList();
-    setState(() {
-      _audiobookVideos = processed;
-      _isLoadingAudiobooks = false;
-    });
+    if (_isAudiobooksLoaded) return; // Don't refetch if already loaded
+
+    // Try to get from cache first
+    await _fetchVideosFromCacheOrApi(
+      category: "audiobooks",
+      setVideos: (videos) => setState(() {
+        _audiobookVideos = videos;
+        _isAudiobooksLoaded = true; // Mark as loaded after successful fetch
+      }),
+      setLoading: (loading) => setState(() => _isLoadingAudiobooks = loading),
+      getVideos: () => _audiobookVideos,
+    );
   }
 
   Future<void> fetchTrendingPodcasts() async {
-    setState(() => _isLoadingPodcasts = true);
-    YoutubeDataApi api = YoutubeDataApi();
-    final videos = await api.fetchSearchVideo("podcasts");
-    final processed = videos.map((v) => processVideoThumbnails(v)).toList();
-    setState(() {
-      _podcastVideos = processed;
-      _isLoadingPodcasts = false;
-    });
+    if (_isPodcastsLoaded) return; // Don't refetch if already loaded
+
+    // Try to get from cache first
+    await _fetchVideosFromCacheOrApi(
+      category: "podcasts",
+      setVideos: (videos) => setState(() {
+        _podcastVideos = videos;
+        _isPodcastsLoaded = true; // Mark as loaded after successful fetch
+      }),
+      setLoading: (loading) => setState(() => _isLoadingPodcasts = loading),
+      getVideos: () => _podcastVideos,
+    );
   }
 
   Future<void> fetchTrendingMusic() async {
-    setState(() => _isLoadingMusic = true);
-    YoutubeDataApi api = YoutubeDataApi();
-    final videos = await api.fetchSearchVideo("music");
-    final processed = videos.map((v) => processVideoThumbnails(v)).toList();
-    setState(() {
-      _musicVideos = processed;
-      _isLoadingMusic = false;
-    });
+    if (_isMusicLoaded) return; // Don't refetch if already loaded
+
+    // Try to get from cache first
+    await _fetchVideosFromCacheOrApi(
+      category: "music",
+      setVideos: (videos) => setState(() {
+        _musicVideos = videos;
+        _isMusicLoaded = true; // Mark as loaded after successful fetch
+      }),
+      setLoading: (loading) => setState(() => _isLoadingMusic = loading),
+      getVideos: () => _musicVideos,
+    );
   }
 
   Future<void> fetchTrendingNews() async {
-    setState(() => _isLoadingMusic = true);
-    YoutubeDataApi api = YoutubeDataApi();
-    final videos = await api.fetchSearchVideo("news");
-    final processed = videos.map((v) => processVideoThumbnails(v)).toList();
-    setState(() {
-      _newsVideos = processed;
-      _isLoadingNews = false;
-    });
+    if (_isNewsLoaded) return; // Don't refetch if already loaded
+
+    // Try to get from cache first
+    await _fetchVideosFromCacheOrApi(
+      category: "news",
+      setVideos: (videos) => setState(() {
+        _newsVideos = videos;
+        _isNewsLoaded = true; // Mark as loaded after successful fetch
+      }),
+      setLoading: (loading) => setState(() => _isLoadingNews = loading),
+      getVideos: () => _newsVideos,
+    );
+  }
+
+  Future<void> _fetchVideosFromCacheOrApi({
+    required String category,
+    required Function(List<MyVideo>) setVideos,
+    required Function(bool) setLoading,
+    required List<MyVideo> Function() getVideos,
+  }) async {
+    setLoading(true);
+
+    // Try to get from cache first
+    try {
+      final cacheKey = "trending_$category";
+      final file = await cacheManager.getSingleFile(cacheKey);
+
+      if (file != null) {
+        final content = await file.readAsString();
+        final cachedVideos = await _deserializeVideos(content);
+
+        // Only use cached data if it's not empty
+        if (cachedVideos.isNotEmpty) {
+          setVideos(cachedVideos);
+        }
+      }
+    } catch (e) {
+      print("Cache miss for $category: $e");
+    }
+
+    // Only fetch from API if we don't have data yet
+    if (getVideos().isEmpty) {
+      try {
+        YoutubeDataApi api = YoutubeDataApi();
+        final videos = await api.fetchSearchVideo(category);
+        final processed = videos.map((v) => processVideoThumbnails(v)).toList();
+
+        // Update the UI with fresh data
+        setVideos(processed);
+
+        // Cache the new data
+        final serializedData = await _serializeVideos(processed);
+        await cacheManager.putFile(
+          "trending_$category",
+          utf8.encode(serializedData),
+          fileExtension: 'json',
+        );
+      } catch (e) {
+        print("Error fetching $category: $e");
+        // If API fails and we have cached data, keep the cached data
+        if (getVideos().isEmpty) {
+          // If we have no cached data either, just keep it empty
+          setVideos([]);
+        }
+      }
+    }
+
+    setLoading(false);
+  }
+
+  Future<String> _serializeVideos(List<MyVideo> videos) async {
+    List<Map<String, dynamic>> videoMaps =
+        videos.map((video) => video.toJson()).toList();
+    return jsonEncode(videoMaps);
+  }
+
+  Future<List<MyVideo>> _deserializeVideos(String jsonString) async {
+    try {
+      List<dynamic> videoList = jsonDecode(jsonString);
+      List<MyVideo> videos =
+          videoList.map((map) => MyVideo.fromJson(map)).toList();
+      return videos;
+    } catch (e) {
+      print("Error deserializing videos: $e");
+      return [];
+    }
   }
 
   @override
@@ -152,6 +261,39 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
         ),
       ],
     );
+  }
+
+  // Method to force refresh data (mark as not loaded and refetch)
+  Future<void> _refreshPodcasts() async {
+    setState(() {
+      _isPodcastsLoaded = false;
+      _podcastVideos = [];
+    });
+    await fetchTrendingPodcasts();
+  }
+
+  Future<void> _refreshMusic() async {
+    setState(() {
+      _isMusicLoaded = false;
+      _musicVideos = [];
+    });
+    await fetchTrendingMusic();
+  }
+
+  Future<void> _refreshAudiobooks() async {
+    setState(() {
+      _isAudiobooksLoaded = false;
+      _audiobookVideos = [];
+    });
+    await fetchTrendingAudiBooks();
+  }
+
+  Future<void> _refreshNews() async {
+    setState(() {
+      _isNewsLoaded = false;
+      _newsVideos = [];
+    });
+    await fetchTrendingNews();
   }
 
   @override
@@ -230,26 +372,26 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       title: "Trending Podcasts",
                       isLoading: _isLoadingPodcasts,
                       videos: _podcastVideos,
-                      onRefresh: fetchTrendingPodcasts,
+                      onRefresh: _refreshPodcasts,
                     ),
                     _buildTrendingSection(
                       title: "Channels",
                       isLoading: _isLoadingMusic,
                       videos: _musicVideos,
-                      onRefresh: fetchTrendingMusic,
+                      onRefresh: _refreshMusic,
                     ),
                     _buildTrendingSection(
                       title: "Audio Books",
                       isLoading: _isLoadingAudiobooks,
                       videos: _audiobookVideos,
-                      onRefresh: fetchTrendingAudiBooks,
+                      onRefresh: _refreshAudiobooks,
                     ),
 
                     _buildTrendingSection(
                       title: "Recent News",
                       isLoading: _isLoadingNews,
                       videos: _newsVideos,
-                      onRefresh: fetchTrendingMusic,
+                      onRefresh: _refreshNews,
                     ),
                   ],
                 ),

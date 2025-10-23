@@ -63,8 +63,7 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             leading: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                  color: Colors.white),
+              icon: const Icon(Icons.keyboard_arrow_down_rounded),
               onPressed: () => Navigator.pop(context),
             ),
             title: const Text('Now Playing'),
@@ -72,7 +71,9 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
             elevation: 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.queue_music, color: Colors.white),
+                icon: const Icon(
+                  Icons.queue_music,
+                ),
                 onPressed: () {
                   _showQueue(context, playing, isOnline);
                 },
@@ -155,7 +156,6 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                       style: const TextStyle(
-                                        color: Colors.white70,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -208,7 +208,8 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                           child: Text(
                             playing.currentCaption,
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.white70),
+                              fontSize: 16,
+                            ),
                           ),
                         ),
 
@@ -219,11 +220,7 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                         child: Column(
                           children: [
                             SliderTheme(
-                              data: SliderTheme.of(context).copyWith(
-                                activeTrackColor: Colors.white,
-                                inactiveTrackColor: Colors.white38,
-                                thumbColor: Colors.white,
-                              ),
+                              data: SliderTheme.of(context).copyWith(),
                               child: Slider(
                                 min: 0,
                                 max: playing.duration.inSeconds.toDouble(),
@@ -302,15 +299,15 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
     return _speedControlExpanded
         ? Row(
             children: [
-              const Text("Speed", style: TextStyle(color: Colors.white)),
+              const Text(
+                "Speed",
+              ),
               Expanded(
                 child: Slider(
                   min: 0.5,
                   max: 2.0,
                   divisions: 6,
                   value: playbackSpeed,
-                  activeColor: Colors.white,
-                  inactiveColor: Colors.white38,
                   onChanged: (value) {
                     setState(() {
                       playbackSpeed = value;
@@ -320,7 +317,7 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.expand_less, color: Colors.white),
+                icon: const Icon(Icons.expand_less),
                 onPressed: () => setState(() {
                   _speedControlExpanded = false;
                 }),
@@ -332,10 +329,13 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.speed, color: Colors.white),
+                const Icon(
+                  Icons.speed,
+                ),
                 const SizedBox(width: 8),
-                Text("${playbackSpeed.toStringAsFixed(1)}x",
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  "${playbackSpeed.toStringAsFixed(1)}x",
+                ),
               ],
             ),
           );
@@ -364,7 +364,6 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
                   ? Icons.pause_circle_filled
                   : Icons.play_circle_filled,
               size: 72,
-              color: Colors.white,
             ),
           ),
         ),
@@ -399,10 +398,7 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
           child: Column(
             children: [
               const Text('Queue',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(

@@ -42,7 +42,7 @@ class PlaylistComponent extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Image.asset(
                       'assets/icon.png',
-                      height: 120,
+                      height: 110,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     );
@@ -51,20 +51,19 @@ class PlaylistComponent extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     playlist.title,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 4),
                   Text(
                     '${playlist.videos.length} songs',
                     style: TextStyle(

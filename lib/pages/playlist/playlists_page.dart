@@ -102,7 +102,8 @@ class _PlaylistsScreenState extends State<PlaylistsScreen>
                                             labelText: 'Playlist Name',
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter a playlist name';
                                             }
                                             return null;
@@ -121,7 +122,8 @@ class _PlaylistsScreenState extends State<PlaylistsScreen>
                                         ),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (formKey.currentState!.validate()) {
+                                            if (formKey.currentState!
+                                                .validate()) {
                                               formKey.currentState!.save();
                                               final newPlaylist = MyPlayList(
                                                 title: playlistName,
@@ -160,15 +162,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen>
               ),
             ),
             Expanded(
-              child: isOnline
-                  ? LiquidPullToRefresh(
-                      onRefresh: _handleRefresh,
-                      height: 100,
-                      animSpeedFactor: 2,
-                      showChildOpacityTransition: true,
-                      child: _buildContent(),
-                    )
-                  : _buildOfflineState(),
+              child: isOnline ? _buildContent() : _buildOfflineState(),
             ),
           ],
         ),
