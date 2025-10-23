@@ -1,4 +1,5 @@
 // File: lib/youtubePage.dart
+import 'package:audiobinge/utils/search_history_saving.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,11 +24,19 @@ class _SearchScreenState extends State<SearchScreen> {
   List<MyVideo> _videos = [];
   bool _isLoading = false;
   bool _isSearching = false;
+  List<String> apiSuggestions = [];
+  final _service = SearchHistoryService();
+  List<String> _history = [];
 
   @override
   void initState() {
     super.initState();
-    // fetchTrendingYoutube();
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    final history = await _service.getHistory();
+    setState(() => _history = history);
   }
 
   Future<void> _handleRefresh() async {
@@ -62,6 +71,9 @@ class _SearchScreenState extends State<SearchScreen> {
       );
       return;
     }
+    if (query.trim().isEmpty) return;
+    await _service.addSearchTerm(query);
+    await _loadHistory();
     setState(() {
       _isSearching = true;
     });
@@ -77,6 +89,18 @@ class _SearchScreenState extends State<SearchScreen> {
       _videos = processedVideos;
       _isSearching = false;
     });
+  }
+
+  Future<void> searchSuggestions(String query) async {
+    try {
+      YoutubeDataApi youtubeDataApi = YoutubeDataApi();
+      List<String> suggestions = await youtubeDataApi.fetchSuggestions(query);
+      setState(() {
+        apiSuggestions = suggestions.map((toElement) => toElement).toList();
+      });
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   @override
@@ -99,7 +123,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 TextField(
                   controller: _searchController,
                   enableSuggestions: true,
-                  
                   decoration: InputDecoration(
                     hintText: 'Search...',
                     filled: true,
@@ -165,8 +188,9 @@ class _SearchScreenState extends State<SearchScreen> {
                             ],
                           ),
                   ),
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                  onChanged: (text) {
+                  style: TextStyle(fontSize: 16),
+                  onChanged: (text) async {
+                    searchSuggestions(text);
                     setState(() {});
                   },
                   onSubmitted: (query) {
@@ -174,6 +198,44 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                   textInputAction: TextInputAction.search,
                 ),
+                // search history
+                SizedBox(
+                  height: 40,
+                  child: ListView(
+                    children: _history.map((term) {
+                      return ListTile(
+                        title: Text(term),
+                        leading: const Icon(Icons.history),
+                        onTap: () {
+                          _searchController.text = term;
+                          searchYoutube(term);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+                // youtube search suggestions
+
+                SizedBox(
+                  height: 400,
+                  child: ListView.separated(
+                    separatorBuilder: (_, __) => const Divider(height: 0),
+                    itemCount: apiSuggestions.length,
+                    itemBuilder: (context, index) => ListTile(
+                      title: Row(
+                        children: [
+                          Icon(Icons.search),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(apiSuggestions[index]),
+                        ],
+                      ),
+                      onTap: () => searchYoutube(apiSuggestions[index]),
+                    ),
+                  ),
+                )
+
                 // SizedBox(
                 //   height: 10,
                 // ),
