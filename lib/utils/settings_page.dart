@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:audiobinge/pages/downloadsPage.dart';
 import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/utils/settings/themes_page.dart';
 import 'package:audiobinge/utils/settings/user_interests_page.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class SettingPage extends StatefulWidget {
@@ -13,9 +17,37 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   bool _autoPlayEnabled = false;
+  int cacheSize = 0;
   double _audioQuality = 2;
-// get current theme
-//
+
+  @override
+  void initState() {
+    super.initState();
+    getCacheSize();
+  }
+
+  Future<void> getCacheSize() async {
+    Directory tempDir = await getTemporaryDirectory();
+    int tempDirSize = await _getSize(tempDir);
+    setState(() {
+      cacheSize = tempDirSize;
+    });
+  }
+
+  Future<int> _getSize(FileSystemEntity file) async {
+    if (file is File) {
+      return file.lengthSync();
+    } else if (file is Directory) {
+      int sum = 0;
+      List<FileSystemEntity> children = file.listSync();
+      for (FileSystemEntity child in children) {
+        sum += await _getSize(child);
+      }
+      return sum;
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeModeState>(context);
@@ -39,18 +71,19 @@ class _SettingPageState extends State<SettingPage> {
       body: ListView(
         children: [
           _buildSectionHeader('Playback'),
-          _buildSwitchTile(
-            icon: Icons.play_circle_outline,
-            title: 'Auto-play',
-            subtitle: 'Continue playing similar songs',
-            value: _autoPlayEnabled,
-            onChanged: (value) {
-              setState(() {
-                _autoPlayEnabled = value;
-              });
-            },
-          ),
+          // _buildSwitchTile(
+          //   icon: Icons.play_circle_outline,
+          //   title: 'Auto-play',
+          //   subtitle: 'Continue playing similar songs',
+          //   value: _autoPlayEnabled,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       _autoPlayEnabled = value;
+          //     });
+          //   },
+          // ),
           _buildSettingTile(
+            enabled: false,
             icon: Icons.graphic_eq,
             title: 'Audio Quality',
             subtitle: _getAudioQualityText(),
@@ -59,6 +92,7 @@ class _SettingPageState extends State<SettingPage> {
             },
           ),
           _buildSettingTile(
+            enabled: false,
             icon: Icons.equalizer,
             title: 'Equalizer',
             onTap: () {},
@@ -77,6 +111,7 @@ class _SettingPageState extends State<SettingPage> {
           //   },
           // ),
           _buildSettingTile(
+            enabled: false,
             icon: Icons.interests,
             title: 'Interests',
             subtitle: 'Change what you want to see',
@@ -119,12 +154,19 @@ class _SettingPageState extends State<SettingPage> {
             icon: Icons.download_outlined,
             title: 'Downloads',
             subtitle: 'Manage downloaded songs',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DownloadScreen(),
+                ),
+              );
+            },
           ),
           _buildSettingTile(
             icon: Icons.storage_outlined,
             title: 'Clear Cache',
-            subtitle: '120 MB',
+            subtitle: '${(cacheSize).toStringAsFixed(2)} MB',
             onTap: () {
               _showClearCacheDialog();
             },
@@ -198,37 +240,60 @@ class _SettingPageState extends State<SettingPage> {
     required String title,
     String? subtitle,
     required VoidCallback onTap,
+    bool enabled = true,
   }) {
+    final theme = Theme.of(context);
+
     return ListTile(
+      onTap: () {
+        if (enabled) {
+          onTap();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Coming soon...'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: enabled
+              ? theme.colorScheme.surfaceContainer
+              : Colors.grey[300], // Greyed background if disabled
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 24),
+        child: Icon(
+          icon,
+          size: 24,
+          color: enabled
+              ? theme.iconTheme.color
+              : Colors.grey[500], // Muted icon color
+        ),
       ),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
+          color: enabled ? null : Colors.grey[600],
         ),
       ),
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: const TextStyle(
-                color: Color(0xFFB3B3B3),
+              style: TextStyle(
+                color: enabled ? Colors.grey[600] : Colors.grey[500],
                 fontSize: 14,
               ),
             )
           : null,
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right,
-        color: Color(0xFFB3B3B3),
+        color: enabled ? Colors.grey[400] : Colors.grey[300],
       ),
-      onTap: onTap,
     );
   }
 
@@ -290,7 +355,6 @@ class _SettingPageState extends State<SettingPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF282828),
         title: const Text(
           'Audio Quality',
         ),
@@ -301,14 +365,15 @@ class _SettingPageState extends State<SettingPage> {
               children: [
                 const Text(
                   'Select your preferred audio quality',
-                  style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 14),
+                  style: TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 20),
                 RadioListTile<int>(
-                  title:
-                      const Text('Low', style: TextStyle(color: Colors.white)),
-                  subtitle: const Text('96 kbps',
-                      style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
+                  title: const Text(
+                    'Low',
+                  ),
+                  subtitle:
+                      const Text('96 kbps', style: TextStyle(fontSize: 12)),
                   value: 0,
                   groupValue: _audioQuality.toInt(),
                   // activeColor: AppColors.primaryColor,
@@ -319,10 +384,12 @@ class _SettingPageState extends State<SettingPage> {
                   },
                 ),
                 RadioListTile<int>(
-                  title: const Text('Normal',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle: const Text('160 kbps',
-                      style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
+                  title: const Text(
+                    'Normal',
+                  ),
+                  subtitle: const Text(
+                    '160 kbps',
+                  ),
                   value: 1,
                   groupValue: _audioQuality.toInt(),
                   // activeColor: AppColors.primaryColor,
@@ -333,10 +400,11 @@ class _SettingPageState extends State<SettingPage> {
                   },
                 ),
                 RadioListTile<int>(
-                  title:
-                      const Text('High', style: TextStyle(color: Colors.white)),
-                  subtitle: const Text('320 kbps',
-                      style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
+                  title: const Text(
+                    'High',
+                  ),
+                  subtitle:
+                      const Text('320 kbps', style: TextStyle(fontSize: 12)),
                   value: 2,
                   groupValue: _audioQuality.toInt(),
                   // activeColor: AppColors.primaryColor,
@@ -347,10 +415,12 @@ class _SettingPageState extends State<SettingPage> {
                   },
                 ),
                 RadioListTile<int>(
-                  title: const Text('Very High',
-                      style: TextStyle(color: Colors.white)),
-                  subtitle: const Text('FLAC',
-                      style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 12)),
+                  title: const Text(
+                    'Very High',
+                  ),
+                  subtitle: const Text(
+                    'FLAC',
+                  ),
                   value: 3,
                   groupValue: _audioQuality.toInt(),
                   // activeColor: AppColors.primaryColor,
@@ -367,8 +437,9 @@ class _SettingPageState extends State<SettingPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: Color(0xFFB3B3B3))),
+            child: const Text(
+              'Cancel',
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -389,17 +460,18 @@ class _SettingPageState extends State<SettingPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF282828),
-        title: const Text('Clear Cache', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Clear Cache',
+        ),
         content: const Text(
           'Are you sure you want to clear the cache? This will free up 120 MB of storage.',
-          style: TextStyle(color: Color(0xFFB3B3B3)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: Color(0xFFB3B3B3))),
+            child: const Text(
+              'Cancel',
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -415,34 +487,6 @@ class _SettingPageState extends State<SettingPage> {
               'Clear',
               // style: TextStyle(color: AppColors.primaryColor)
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF282828),
-        title: const Text('Log Out', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Are you sure you want to log out?',
-          style: TextStyle(color: Color(0xFFB3B3B3)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
-                style: TextStyle(color: Color(0xFFB3B3B3))),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Add your logout logic here
-            },
-            child: const Text('Log Out', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

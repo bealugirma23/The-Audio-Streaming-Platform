@@ -1,4 +1,4 @@
-// File: lib/youtubePage.dart
+// File: lib/searchPage.dart
 import 'package:audiobinge/utils/search_history_saving.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -27,11 +27,25 @@ class _SearchScreenState extends State<SearchScreen> {
   List<String> apiSuggestions = [];
   final _service = SearchHistoryService();
   List<String> _history = [];
+  bool _showSuggestions = false;
 
   @override
   void initState() {
     super.initState();
     _loadHistory();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_searchController.text.isEmpty) {
+      setState(() {
+        _showSuggestions = false;
+      });
+    } else {
+      setState(() {
+        _showSuggestions = true;
+      });
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -76,6 +90,7 @@ class _SearchScreenState extends State<SearchScreen> {
     await _loadHistory();
     setState(() {
       _isSearching = true;
+      _showSuggestions = false; // Hide suggestions when search is performed
     });
     YoutubeDataApi youtubeDataApi = YoutubeDataApi();
     List videos = await youtubeDataApi.fetchSearchVideo(query);
@@ -92,11 +107,19 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> searchSuggestions(String query) async {
+    if (query.trim().isEmpty) {
+      setState(() {
+        apiSuggestions = [];
+        _showSuggestions = false;
+      });
+      return;
+    }
     try {
       YoutubeDataApi youtubeDataApi = YoutubeDataApi();
       List<String> suggestions = await youtubeDataApi.fetchSuggestions(query);
       setState(() {
         apiSuggestions = suggestions.map((toElement) => toElement).toList();
+        _showSuggestions = true; // Show suggestions when we have them
       });
     } catch (e) {
       throw Exception(e.toString());
@@ -105,6 +128,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -172,7 +196,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                         ),
                                         onPressed: () {
                                           _searchController.clear();
-                                          setState(() {});
+                                          setState(() {
+                                            apiSuggestions =
+                                                []; // Clear suggestions
+                                            _showSuggestions =
+                                                false; // Hide suggestions
+                                            _videos = [];
+                                          });
                                         },
                                       )
                                     : SizedBox.shrink(),
@@ -191,69 +221,64 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: TextStyle(fontSize: 16),
                   onChanged: (text) async {
                     searchSuggestions(text);
-                    setState(() {});
                   },
                   onSubmitted: (query) {
+                    _searchController.text = query;
                     searchYoutube(query);
                   },
                   textInputAction: TextInputAction.search,
                 ),
-                // search history
-                SizedBox(
-                  height: 40,
-                  child: ListView(
-                    children: _history.map((term) {
-                      return ListTile(
-                        title: Text(term),
-                        leading: const Icon(Icons.history),
-                        onTap: () {
-                          _searchController.text = term;
-                          searchYoutube(term);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-                // youtube search suggestions
-
-                SizedBox(
-                  height: 400,
-                  child: ListView.separated(
-                    separatorBuilder: (_, __) => const Divider(height: 0),
-                    itemCount: apiSuggestions.length,
-                    itemBuilder: (context, index) => ListTile(
-                      title: Row(
-                        children: [
-                          Icon(Icons.search),
-                          SizedBox(
-                            width: 8,
+                // Show search history when search field is empty and no suggestions are shown
+                if (_searchController.text.isEmpty && _history.isNotEmpty)
+                  SizedBox(
+                    height: 400, // Increase height to show more history items
+                    child: ListView(
+                      children: _history.map((term) {
+                        return ListTile(
+                          title: Text(term),
+                          leading: const Icon(Icons.history),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _history.remove(term);
+                              });
+                            },
                           ),
-                          Text(apiSuggestions[index]),
-                        ],
-                      ),
-                      onTap: () => searchYoutube(apiSuggestions[index]),
+                          onTap: () {
+                            _searchController.text = term;
+                            searchYoutube(term);
+                          },
+                        );
+                      }).toList(),
                     ),
                   ),
-                )
-
-                // SizedBox(
-                //   height: 10,
-                // ),
-                // Row(
-                //   spacing: 10,
-                //   children: [
-                //     ChoiceChip(
-                //       label: Text(
-                //         'Music',
-                //         style: TextStyle(color: Colors.black),
-                //       ),
-                //       selected: true,
-                //       selectedColor: Colors.amber,
-                //     ),
-                //     // ChoiceChip(label: Text('Podcasts'), selected: false),
-                //     // ChoiceChip(label: Text('Music'), selected: false),
-                //   ],
-                // )
+                // Show suggestions when user is typing
+                if (_showSuggestions &&
+                    _searchController.text.isNotEmpty &&
+                    apiSuggestions.isNotEmpty)
+                  SizedBox(
+                    height: 400,
+                    child: ListView.separated(
+                      separatorBuilder: (_, __) => const Divider(height: 0),
+                      itemCount: apiSuggestions.length,
+                      itemBuilder: (context, index) => ListTile(
+                        title: Row(
+                          children: [
+                            Icon(Icons.search),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Text(apiSuggestions[index]),
+                          ],
+                        ),
+                        onTap: () => {
+                          _searchController.text = apiSuggestions[index],
+                          searchYoutube(apiSuggestions[index])
+                        },
+                      ),
+                    ),
+                  )
               ],
             ),
           ),

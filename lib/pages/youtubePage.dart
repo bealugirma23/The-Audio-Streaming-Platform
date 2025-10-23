@@ -3,6 +3,7 @@ import 'package:audiobinge/models/PlayList.dart';
 import 'package:audiobinge/utils/likedPlaylistUtils.dart';
 import 'package:audiobinge/components/playlistComponent.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 import '../components/videoComponent.dart';
 import '../utils/thumbnailUtils.dart';
@@ -30,6 +31,7 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   bool _isLoadingMusic = false;
   bool _isLoadingNews = false;
   bool _isLoadingLikedPlaylist = false;
+  final cacheManager = DefaultCacheManager();
 
   @override
   void initState() {
@@ -54,6 +56,7 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
     setState(() => _isLoadingAudiobooks = true);
     YoutubeDataApi api = YoutubeDataApi();
     final videos = await api.fetchSearchVideo("audiobooks");
+   
     final processed = videos.map((v) => processVideoThumbnails(v)).toList();
     setState(() {
       _audiobookVideos = processed;
