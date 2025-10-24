@@ -62,6 +62,7 @@ dependencies:
   shared_preferences: ^2.5.3
   firebase_crashlytics: ^5.0.3
   flutter_cache_manager: ^3.4.1
+  flutter_keyboard_visibility: ^6.0.0
 
 dev_dependencies:
   flutter_svg: ^2.0.17

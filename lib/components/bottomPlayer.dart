@@ -51,12 +51,14 @@ class _BottomPlayerState extends State<BottomPlayer> {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              transitionDuration: const Duration(milliseconds: 250),
+                              transitionDuration:
+                                  const Duration(milliseconds: 250),
                               pageBuilder:
                                   (context, animation, secondaryAnimation) =>
-                                      YoutubeAudioPlayer(videoId: playing.video.videoId!),
-                              transitionsBuilder:
-                                  (context, animation, secondaryAnimation, child) {
+                                      YoutubeAudioPlayer(
+                                          videoId: playing.video.videoId!),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
                                 const begin = Offset(0.0, 1.0);
                                 const end = Offset.zero;
 
@@ -91,9 +93,12 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                         fit: BoxFit
                                             .cover, // Or BoxFit.fitWidth/fitHeight
                                       )
-                                    : (isOnline && playing.video.thumbnails != null && 
-                                        playing.video.thumbnails!.isNotEmpty && 
-                                        playing.video.thumbnails![0].url != null)
+                                    : (isOnline &&
+                                            playing.video.thumbnails != null &&
+                                            playing
+                                                .video.thumbnails!.isNotEmpty &&
+                                            playing.video.thumbnails![0].url !=
+                                                null)
                                         ? Image.network(
                                             playing.video.thumbnails![0].url!,
                                             fit: BoxFit.cover,
@@ -127,7 +132,8 @@ class _BottomPlayerState extends State<BottomPlayer> {
                               SizedBox(
                                 width: MediaQuery.of(context).size.width - 180,
                                 child: Text(
-                                  playing.video.channelName ?? "Unknown Channel",
+                                  playing.video.channelName ??
+                                      "Unknown Channel",
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

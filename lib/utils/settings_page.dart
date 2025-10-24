@@ -166,7 +166,7 @@ class _SettingPageState extends State<SettingPage> {
           _buildSettingTile(
             icon: Icons.storage_outlined,
             title: 'Clear Cache',
-            subtitle: '${(cacheSize).toStringAsFixed(2)} MB',
+            subtitle: '${(cacheSize / (1024 * 1024)).toStringAsFixed(2)} MB',
             onTap: () {
               _showClearCacheDialog();
             },
