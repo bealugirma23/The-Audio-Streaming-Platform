@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:audiobinge/models/MyVideo.dart';
 import 'package:audiobinge/pages/channelVideosPage.dart';
+import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/utils/likedPlaylistUtils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 import '../provider/connectivityProvider.dart';
@@ -54,6 +56,7 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
     final likeNotifier = context.watch<LikeNotifier>();
     likeNotifier.setVideo(playing.video);
 
+    final isDarkMode = Provider.of<ThemeModeState>(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenHeight = constraints.maxHeight;
@@ -62,6 +65,9 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
+            systemOverlayStyle: isDarkMode.isDark
+                ? SystemUiOverlayStyle.light
+                : SystemUiOverlayStyle.dark,
             leading: IconButton(
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
               onPressed: () => Navigator.pop(context),
@@ -83,9 +89,9 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
           body: Stack(
             children: [
               // Background
-              Positioned.fill(
-                child: _buildBackground(playing, isOnline),
-              ),
+              // Positioned.fill(
+              //   child: _buildBackground(playing, isOnline),
+              // ),
 
               // Main content
               SafeArea(
@@ -266,15 +272,15 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
             ? Image.file(File(playing.video.localimage!), fit: BoxFit.cover)
             : (isOnline)
                 ? Image.network(playing.video.thumbnails![0].url!,
-                    fit: BoxFit.cover)
+                    fit: BoxFit.contain)
                 : Image.asset('assets/icon.png', fit: BoxFit.cover),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            color:
-                Colors.black.withOpacity(0.6), // Adjustable background overlay
-          ),
-        ),
+        // BackdropFilter(
+        //   filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        //   child: Container(
+        //       // color:
+        //       // Colors.black.withOpacity(0.6), // Adjustable background overlay
+        //       ),
+        // ),
       ],
     );
   }
@@ -453,7 +459,10 @@ class _YoutubeAudioPlayerState extends State<YoutubeAudioPlayer> {
           shape: BoxShape.circle,
           color: Colors.white.withOpacity(0.1),
         ),
-        child: Icon(icon, size: size, color: color),
+        child: Icon(
+          icon,
+          size: size,
+        ),
       ),
     );
   }

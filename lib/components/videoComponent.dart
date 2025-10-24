@@ -174,33 +174,33 @@ class _VideoComponentState extends State<VideoComponent> {
                                       );
                                     }
                                     break;
-                                case 'add_to_liked':
-                                  addToLikedPlaylist(widget.video);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Added to Liked Songs'),
-                                      elevation: 10,
-                                      behavior: SnackBarBehavior.floating,
-                                      margin: EdgeInsets.all(5),
-                                    ),
-                                  );
-                                  break;
-                                case 'remove_from_liked':
-                                  removeFromLikedPlaylist(widget.video);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Removed from Liked Songs'),
-                                      elevation: 10,
-                                      behavior: SnackBarBehavior.floating,
-                                      margin: EdgeInsets.all(5),
-                                    ),
-                                  );
-                                  break;
+                                  case 'add_to_liked':
+                                    addToLikedPlaylist(widget.video);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Added to Liked Songs'),
+                                        elevation: 10,
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.all(5),
+                                      ),
+                                    );
+                                    break;
+                                  case 'remove_from_liked':
+                                    removeFromLikedPlaylist(widget.video);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text('Removed from Liked Songs'),
+                                        elevation: 10,
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.all(5),
+                                      ),
+                                    );
+                                    break;
                                   case 'add_to_downloads':
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
                                       content: Text('Download started'),
-                                      backgroundColor: Colors.white,
                                       elevation: 10,
                                       behavior: SnackBarBehavior.floating,
                                       margin: EdgeInsets.all(5),
@@ -213,7 +213,6 @@ class _VideoComponentState extends State<VideoComponent> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Removed from downloads'),
-                                        backgroundColor: Colors.white,
                                         elevation: 10,
                                         behavior: SnackBarBehavior.floating,
                                         margin: EdgeInsets.all(5),
@@ -231,7 +230,8 @@ class _VideoComponentState extends State<VideoComponent> {
                                   isLiked
                                       ? PopupMenuItem<String>(
                                           value: 'remove_from_liked',
-                                          child: Text('Remove from Liked Songs'),
+                                          child:
+                                              Text('Remove from Liked Songs'),
                                         )
                                       : PopupMenuItem<String>(
                                           value: 'add_to_liked',
