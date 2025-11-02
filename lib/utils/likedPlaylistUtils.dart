@@ -16,7 +16,10 @@ Future<MyPlayList> getLikedPlaylist() async {
       coverImage: '',
       videos: [],
     );
-    await db.collection('playlists').doc('liked').set(newLikedPlaylist.toJson());
+    await db
+        .collection('playlists')
+        .doc('liked')
+        .set(newLikedPlaylist.toJson());
     return newLikedPlaylist;
   }
 }

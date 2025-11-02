@@ -5,6 +5,7 @@ import 'package:audiobinge/utils/likedPlaylistUtils.dart';
 import 'package:audiobinge/components/playlistComponent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:localstore/localstore.dart';
 import 'package:youtube_scrape_api/youtube_scrape_api.dart';
 import '../components/videoComponent.dart';
 import '../utils/thumbnailUtils.dart';
@@ -26,7 +27,8 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
   List<MyVideo> _musicVideos = [];
   List<MyVideo> _newsVideos = [];
   List<MyVideo> _audiobookVideos = [];
-  MyPlayList? _likedPlaylist;
+  List<MyPlayList> _playlists = [];
+  // MyPlayList? _likedPlaylist;
   bool _isLoadingPodcasts = false;
   bool _isLoadingAudiobooks = false;
   bool _isLoadingMusic = false;
@@ -64,12 +66,18 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
     if (_isLikedPlaylistLoaded) return; // Don't refetch if already loaded
 
     setState(() => _isLoadingLikedPlaylist = true);
-    final likedPlaylist = await getLikedPlaylist();
-    setState(() {
-      _likedPlaylist = likedPlaylist;
-      _isLoadingLikedPlaylist = false;
-      _isLikedPlaylistLoaded = true; // Mark as loaded
-    });
+    final db = Localstore.instance;
+    final playlists = await db.collection('playlists').get();
+    if (playlists != null) {
+      setState(() {
+        _playlists = playlists.values
+            .map((e) => MyPlayList.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        _isLoadingLikedPlaylist = false;
+        _isLikedPlaylistLoaded = true; // Mark as loaded
+      });
+    }
   }
 
   Future<void> fetchTrendingAudiBooks() async {
@@ -355,9 +363,29 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                                     ),
                                   ),
                                 )
-                              : _likedPlaylist != null
-                                  ? PlaylistComponent(
-                                      playlist: _likedPlaylist!,
+                              : _playlists != null
+                                  ? SizedBox(
+                                      height: 100,
+                                      width: MediaQuery.of(context).size.width -
+                                          30,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: _playlists.length,
+                                        itemBuilder: (context, index) {
+                                          final playlist = _playlists[index];
+                                          //  PlaylistComponent(
+                                          // playlist: _likedPlaylist!,
+                                          // )
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 12),
+                                            child: PlaylistComponent(
+                                              playlist: playlist,
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     )
                                   : Container(),
                           const SizedBox(width: 12),
@@ -375,7 +403,7 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       onRefresh: _refreshPodcasts,
                     ),
                     _buildTrendingSection(
-                      title: "Channels",
+                      title: "Trending Musics",
                       isLoading: _isLoadingMusic,
                       videos: _musicVideos,
                       onRefresh: _refreshMusic,

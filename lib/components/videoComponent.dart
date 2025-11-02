@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:audiobinge/models/PlayList.dart';
 import 'package:audiobinge/pages/channelVideosPage.dart';
 import 'package:audiobinge/services/donwloadService.dart';
 import 'package:flutter/material.dart';
+import 'package:localstore/localstore.dart';
 import 'package:provider/provider.dart';
 import '../services/player.dart';
 import '../utils/downloadUtils.dart';
@@ -26,14 +28,169 @@ class VideoComponent extends StatefulWidget {
 class _VideoComponentState extends State<VideoComponent> {
   late Future<List<bool>> _future;
   StreamSubscription? _downloadSubscription;
-
+  List<MyPlayList> _playlists = [];
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
+    fetchPlaylists();
     _future = Future.wait([
       isLikedVideo(widget.video),
       isDownloaded(widget.video),
     ]);
+  }
+
+  Future<void> fetchPlaylists() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final db = Localstore.instance;
+    final playlists = await db.collection('playlists').get();
+    print("Pla $playlists");
+
+    if (playlists != null) {
+      setState(() {
+        _playlists = playlists.values
+            .map((e) => MyPlayList.fromJson(e as Map<String, dynamic>))
+            .toList();
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Function to show playlist selection dialog
+  void _showPlaylistDialog(BuildContext context) async {
+    // Prepare a list of playlist names derived from _playlists
+    List<String> playlistNames =
+        _playlists.map((p) => p.title ?? 'Untitled').toList();
+
+    // Show dialog with playlist options
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Text('Add to Playlist'),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () async {
+                      // Add new playlist functionality
+
+                      String? newPlaylistName =
+                          await _showCreatePlaylistDialog(context);
+
+                      if (newPlaylistName != null) {
+                        setState(() {
+                          // Update the local name list shown in the dialog.
+                          // Persisting/creating a MyPlayList entry in storage
+                          // can be done where you handle playlist creation.
+                          playlistNames.add(newPlaylistName);
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              content: Container(
+                width: double.maxFinite,
+                height: 300, // Fixed height for the list
+                child: playlistNames.isEmpty
+                    ? Center(child: Text('No playlists found'))
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: playlistNames.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            leading: Icon(Icons.playlist_play),
+                            title: Text(playlistNames[index]),
+                            onTap: () {
+                              // Add video to selected playlist by name
+                              _addToPlaylist(
+                                  playlistNames[index], widget.video);
+
+                              // Show success message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Added to ${playlistNames[index]}'),
+                                  elevation: 10,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: EdgeInsets.all(5),
+                                ),
+                              );
+
+                              Navigator.of(context).pop(); // Close dialog
+                            },
+                          );
+                        },
+                      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Function to show dialog for creating a new playlist
+  Future<String?> _showCreatePlaylistDialog(BuildContext context) async {
+    final TextEditingController controller = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Create New Playlist'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: "Playlist name"),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim().isNotEmpty) {
+                  Navigator.of(context)
+                      .pop(controller.text.trim()); // Return playlist name
+                }
+              },
+              child: Text('Create'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Function to add video to playlist
+  void _addToPlaylist(String playlistName, MyVideo video) {
+    // If adding to "Liked Songs", use existing liked playlist utility
+    if (playlistName == 'Liked Songs') {
+      addToLikedPlaylist(video);
+    } else {
+      // For other playlists, you would implement your own logic here
+      // This might involve saving to a database or file
+      print('Adding video to custom playlist: $playlistName');
+      // In a real implementation, you would add your database logic here
+    }
   }
 
   @override
@@ -197,6 +354,9 @@ class _VideoComponentState extends State<VideoComponent> {
                                       ),
                                     );
                                     break;
+                                  case 'add_to_playlist':
+                                    _showPlaylistDialog(context);
+                                    break;
                                   case 'add_to_downloads':
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
@@ -226,6 +386,10 @@ class _VideoComponentState extends State<VideoComponent> {
                                   PopupMenuItem<String>(
                                     value: 'add_to_queue',
                                     child: Text('Add to Queue'),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: 'add_to_playlist',
+                                    child: Text('Add to Playlist'),
                                   ),
                                   isLiked
                                       ? PopupMenuItem<String>(

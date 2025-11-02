@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:audiobinge/provider/connectivityProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobinge/services/youtubeAudioStream.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
 import '../services/player.dart';
@@ -19,6 +20,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
   Widget build(BuildContext context) {
     final playing = Provider.of<Playing>(context, listen: false);
     bool isOnline = Provider.of<NetworkProvider>(context).isOnline;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Center(
