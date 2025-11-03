@@ -3,6 +3,7 @@ import 'package:audiobinge/main.dart';
 import 'package:audiobinge/services/player.dart';
 import 'package:audiobinge/theme/isDark.dart';
 import 'package:audiobinge/theme/theme.dart';
+import 'package:audiobinge/utils/user_keyword_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:youtube_scrape_api/models/thumbnail.dart';
@@ -86,8 +87,8 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: theme.themeData,
       themeMode: isDarkMode.isDark ? ThemeMode.dark : ThemeMode.light,
-      home: YouTubeTwitchTabs(),
-      // home: UserKeywordScreen(),
+      // home: YouTubeTwitchTabs(),
+      home: UserKeywordScreen(),
     );
   }
 }

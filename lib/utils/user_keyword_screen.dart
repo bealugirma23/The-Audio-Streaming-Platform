@@ -1,5 +1,6 @@
 import 'package:audiobinge/main.dart';
 import 'package:flutter/material.dart';
+import 'package:localstore/localstore.dart';
 
 class UserKeywordScreen extends StatefulWidget {
   const UserKeywordScreen({super.key});
@@ -9,34 +10,32 @@ class UserKeywordScreen extends StatefulWidget {
 }
 
 class _UserKeywordScreenState extends State<UserKeywordScreen> {
-  final List<String> interests = [
-    "Music",
-    "Sports",
-    "Fashion",
-    "Technology",
-    "Travel",
-    "Food",
-    "Gaming",
-    "Movies",
-    "Science",
-    "Health",
-    "Art",
-    "Finance",
-    "Education",
-    "Comedy",
-    "Fitness",
-    "Lifestyle",
-    "Animals",
-  ];
-
   final List<String> selected = [];
+  final List<String> _tags = ["podcasts", 'audiobooks', "news"];
+  final TextEditingController _controller = TextEditingController();
+
+  void _addTag(String text) {
+    final tag = text.trim();
+    if (tag.isNotEmpty && !_tags.contains(tag)) {
+      setState(() {
+        _tags.add(tag);
+      });
+    }
+    _controller.clear();
+  }
+
+  void _removeTag(String tag) {
+    setState(() {
+      _tags.remove(tag);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
 
     // Example: skip if not first time
-    final bool isFirstTime = false; // change to false to skip
+    final bool isFirstTime = true; // change to false to skip
     if (!isFirstTime) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -69,7 +68,6 @@ class _UserKeywordScreenState extends State<UserKeywordScreen> {
               const Text(
                 "Choose your interests",
                 style: TextStyle(
-                  color: Colors.white,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -79,88 +77,91 @@ class _UserKeywordScreenState extends State<UserKeywordScreen> {
               const Text(
                 "Select a few topics you like and we’ll tailor content for you.",
                 style: TextStyle(
-                  color: Colors.white70,
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.2,
-                  ),
-                  itemCount: interests.length,
-                  itemBuilder: (context, index) {
-                    final item = interests[index];
-                    final isSelected = selected.contains(item);
-                    return GestureDetector(
-                      onTap: () => toggleSelection(item),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.amber : Colors.grey[850],
-                          borderRadius: BorderRadius.circular(20),
-                          border: isSelected
-                              ? Border.all(color: Colors.white, width: 2)
-                              : null,
-                        ),
-                        child: Center(
-                          child: Text(
-                            item,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.white70,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final tag in _tags)
+                          Chip(
+                            label: Text(tag),
+                            deleteIcon: const Icon(Icons.close, size: 18),
+                            onDeleted: () => _removeTag(tag),
+                          ),
+                        // The input field at the end of the chips
+                        SizedBox(
+                          width: 120,
+                          child: TextField(
+                            controller: _controller,
+                            decoration: const InputDecoration(
+                              hintText: 'Add keyword...',
+                              border: InputBorder.none,
                             ),
+                            onSubmitted: _addTag,
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Tags: ${_tags.join(", ")}'),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
-              AnimatedOpacity(
-                opacity: selected.isEmpty ? 0.5 : 1,
-                duration: const Duration(milliseconds: 200),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 80, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  onPressed: selected.isEmpty
-                      ? null
-                      : () {
-                          // TODO: Save selections and continue
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const YouTubeTwitchTabs(),
-                            ),
-                          );
-                        },
-                  child: const Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+
               // const SizedBox(height: 30),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: AnimatedOpacity(
+          opacity: _tags.isEmpty ? 0.5 : 1,
+          duration: const Duration(milliseconds: 200),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: _tags.isEmpty
+                ? null
+                : () async {
+                    // TODO: Save selections and continue
+
+                    // final db = Localstore.instance;
+                    // await db
+                    // .collection('interests')
+                    // .doc('')
+                    // .set(_tags.toJson());
+                    Future.delayed(Duration(milliseconds: 200));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const YouTubeTwitchTabs(),
+                      ),
+                    );
+                  },
+            child: const Text(
+              "Continue",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),

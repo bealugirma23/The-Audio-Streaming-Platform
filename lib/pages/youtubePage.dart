@@ -402,12 +402,12 @@ class _YoutubeScreenState extends State<YoutubeScreen> {
                       videos: _podcastVideos,
                       onRefresh: _refreshPodcasts,
                     ),
-                    _buildTrendingSection(
-                      title: "Trending Musics",
-                      isLoading: _isLoadingMusic,
-                      videos: _musicVideos,
-                      onRefresh: _refreshMusic,
-                    ),
+                    // _buildTrendingSection(
+                    //   title: "Trending Musics",
+                    //   isLoading: _isLoadingMusic,
+                    //   videos: _musicVideos,
+                    //   onRefresh: _refreshMusic,
+                    // ),
                     _buildTrendingSection(
                       title: "Audio Books",
                       isLoading: _isLoadingAudiobooks,
