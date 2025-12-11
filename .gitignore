@@ -18,7 +18,10 @@ migrate_working_dir/
 *.iws
 .idea/
 
+/Users/mac/Desktop/audifier/upload-keystore.jks
 .upload-keystore.jks
+upload-keystore.jks
+/upload-keystore.jks
 .upload-keystore.keystore
 
 # The .vscode folder contains launch configuration and tasks you configure in
@@ -46,3 +49,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+upload-keystore.jks
+upload-keystore.keystore
